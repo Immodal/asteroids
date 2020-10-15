@@ -5,6 +5,18 @@ Sensor = (ship, nRays=16) => {
   sensor.results = []
 
   /**
+   * Reformat results for use in neural network
+   */
+  sensor.getResults = () => {
+    if(sensor.results.length==0) return Array.from(Array(nRays), () => [0])
+    return sensor.results
+      .map(res => res.intersections.reduce((acc, pt) => {
+        const pDist = pt.dist(sensor.ship.pos)
+        return pDist < acc[0] ? [pDist] : acc
+      }, [width*10]))
+  }
+
+  /**
    * Perform ray casting to find the given objects and save the results
    * @param {Array} objs Array of SpaceObjects
    */

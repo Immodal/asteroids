@@ -1,6 +1,7 @@
-Game = () => {
+Game = ai => {
   const gm = {}
 
+  gm.nAsteroids = 20
   gm.score = 0
 
   /**
@@ -10,6 +11,7 @@ Game = () => {
     // Game Logic
     const now = millis()
     if (!gm.over && now - gm.lastUpdate > gm.updateInterval) {
+      gm.ship.takeActions(gm.lasers)
       gm.ship.move()
       gm.asteroids.forEach(o => o.move())
 
@@ -30,6 +32,7 @@ Game = () => {
       }
 
       gm.asteroids.forEach(o => {if (o.collides(gm.ship)) gm.over = true})
+      if (gm.asteroids.length<gm.nAsteroids) gm.spawnAsteroid()
       gm.ship.scan(gm.asteroids)
       gm.lastUpdate = now
     }
@@ -79,8 +82,8 @@ Game = () => {
   }
 
   gm.over = false
-  gm.ship = Ship(250, 250, 15)
-  gm.asteroids = Array.from(Array(10), gm.spawnAsteroid)
+  gm.ship = Ship(width/2, height/2, 15, ai)
+  gm.asteroids = Array.from(Array(gm.nAsteroids), gm.spawnAsteroid)
   gm.lasers = []
   gm.lastUpdate = 0
   gm.updateInterval = 10

@@ -1,4 +1,4 @@
-Ship = (x, y, diameter, nSensorRays=16) => {
+Ship = (x, y, diameter, ai=null) => {
   const ship = SpaceObject(
     x, y, diameter,
     0, 0.05,
@@ -11,8 +11,20 @@ Ship = (x, y, diameter, nSensorRays=16) => {
   ship.weaponCd = 200
   ship.weaponLastFired = 0
 
-  ship.sensor = Sensor(ship, nSensorRays)
-  ship.scanRes = []
+  ship.ai = ai
+  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.ihWeights[0].length)
+
+  ship.takeActions = (lasers) => {
+    if (ship.ai!=null) {
+      let distances = ship.sensor.getResults()
+      let actions = ship.ai.predict(distances)
+      
+      if (actions[0][0]>0.5) ship.accelerate()
+      if (actions[1][0]>0.5) ship.rotate(1)
+      if (actions[2][0]>0.5) ship.rotate(-1)
+      if (actions[3][0]>0.5 && ship.shoot()) lasers.push(Laser(ship))
+    }
+  }
 
   /**
    * Use sensors to scan for the given objects
