@@ -123,6 +123,32 @@ Neuroevolution = {
       return nec
     }
 
+    /**
+     * Cross over the weights of two networks according to the given ratio
+     * @param {} other The network to be crossed with this one
+     * @param {Float} ratio Crossover ratio in favour of this network
+     */
+    ne.crossover = (other, ratio=0.5) => {
+      const co = (weights1, weights2) => weights1.map((node, i) => node.map((w, j) => math.random()<ratio ? w : weights2[i][j]))
+      const coh = (weights1, weights2) => {
+        return weights1.map((layer, k) => layer.map((node, i) => node.map((w, j) => math.random()<ratio ? w : weights2[k][i][j])))
+      }
+      let nec = Neuroevolution.construct(
+        ne.ihWeights[0].length, 
+        ne.ihWeights.length, 
+        ne.hhWeights.length+1,
+        ne.hoWeights.length,
+        ne.activation, ne.dactivation)
+      nec.generation = (other.generation>ne.generation ? other.generation : ne.generation) + 1
+      nec.ihWeights = co(ne.ihWeights, other.ihWeights)
+      nec.ihBias = co(ne.ihBias, other.ihBias)
+      nec.hhWeights = coh(ne.hhWeights, other.hhWeights)
+      nec.hhBias = coh(ne.hhBias, other.hhBias)
+      nec.hoWeights = co(ne.hoWeights, other.hoWeights)
+      nec.hoBias = co(ne.hoBias, other.hoBias)
+      return nec
+    }
+
     return ne
   }
 }

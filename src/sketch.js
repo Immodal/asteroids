@@ -2,8 +2,8 @@ let population, games, canvas;
 let N_INPUTS = 16
 let N_HIDDEN_NODES = 8
 let N_HIDDEN_LAYERS = 2
-let POP_SIZE = 10
-let mutationRate = 0.1
+let POP_SIZE = 20
+let MUTATION_RATE = 0.05
 let generationCount = 0
 
 function setup() {
@@ -27,7 +27,7 @@ function draw() {
 
     fill(255)
     textSize(32);
-    text(`Gen: ${generationCount}`, width-60, 30);
+    text(`Gen: ${generationCount}`, width-150, 30);
   })
 
   if(allComplete) {
@@ -45,29 +45,22 @@ function createPopulation(size) {
 }
 
 function mutatePopulation(pop, games) {
+  const mAndC = (np, ai, ratio) => {
+    for (let i=0; i<math.floor(POP_SIZE*ratio); i++) {
+      if (i==0) np.push(ai)
+      else np.push(ai.crossover(ranked[i][1]).mutate(MUTATION_RATE))
+    }
+  }
+
   let ranked = games.map((g, i) => [g.score, pop[i]])
   ranked.sort((a, b) => {
     return a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0
   })
 
   let newPop = []
-  let ai = ranked[0][1]
-  for (let i=0; i<math.floor(POP_SIZE*0.4); i++) {
-    if (i==0) newPop.push(ai)
-    else newPop.push(ai.mutate(mutationRate))
-  }
-
-  ai = ranked[1][1]
-  for (let i=0; i<math.floor(POP_SIZE*0.2); i++) {
-    if (i==0) newPop.push(ai)
-    else newPop.push(ai.mutate(mutationRate))
-  }
-
-  ai = ranked[2][1]
-  for (let i=0; i<math.floor(POP_SIZE*0.1); i++) {
-    if (i==0) newPop.push(ai)
-    else newPop.push(ai.mutate(mutationRate))
-  }
+  mAndC(newPop, ranked[0][1], 0.4)
+  mAndC(newPop, ranked[1][1], 0.2)
+  mAndC(newPop, ranked[2][1], 0.1)
 
   for (let i=0; i<POP_SIZE-newPop.length; i++) {
     newPop.push(Neuroevolution.construct(N_INPUTS, N_HIDDEN_NODES, N_HIDDEN_LAYERS, 4))

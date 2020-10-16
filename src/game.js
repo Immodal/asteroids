@@ -1,9 +1,6 @@
 Game = ai => {
   const gm = {}
 
-  gm.nAsteroids = 20
-  gm.score = 0
-
   /**
    * Draw function to be called by sketch.js
    */
@@ -81,6 +78,8 @@ Game = ai => {
     return math.pickRandom([left, right, top, bottom])()
   }
 
+  gm.nAsteroids = 20
+  gm.score = 0
   gm.over = false
   gm.ship = Ship(width/2, height/2, 15, ai)
   gm.asteroids = Array.from(Array(gm.nAsteroids), gm.spawnAsteroid)
