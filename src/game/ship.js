@@ -8,13 +8,13 @@ Ship = (x, y, diameter, ai=null) => {
   ship.bowProp = 0.7 // Proportion of diameter
   ship.aftProp = 1 - ship.bowProp
 
-  ship.weaponCd = 200
+  ship.weaponCd = 250
   ship.weaponLastFired = 0
 
   ship.ai = ai
   ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.ihWeights[0].length)
 
-  ship.takeActions = (lasers) => {
+  ship.takeActions = (currentTime, lasers) => {
     if (ship.ai!=null) {
       let distances = ship.sensor.getResults()
       let actions = ship.ai.predict(distances)
@@ -22,7 +22,7 @@ Ship = (x, y, diameter, ai=null) => {
       if (actions[0][0]>0.5) ship.accelerate()
       if (actions[1][0]>0.5) ship.rotate(1)
       if (actions[2][0]>0.5) ship.rotate(-1)
-      if (actions[3][0]>0.5 && ship.shoot()) lasers.push(Laser(ship))
+      if (actions[3][0]>0.5 && ship.shoot()) lasers.push(Laser(currentTime, ship))
     }
   }
 

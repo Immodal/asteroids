@@ -1,4 +1,4 @@
-Laser = ship => {
+Laser = (startTime, ship) => {
   let MAX_SPEED = 10
 
   const laser = SpaceObject(
@@ -7,13 +7,13 @@ Laser = ship => {
     p5.Vector.mult(p5.Vector.fromAngle(ship.rotation),MAX_SPEED), MAX_SPEED, 0
   )
 
-  laser.lifeTime = 1000
-  laser.startTime = millis()
+  laser.lifeTime = 75
+  laser.startTime = startTime
 
   /**
    * Check if laser is due to disappear
    */
-  laser.isDepleted = () => millis() - laser.startTime > laser.lifeTime
+  laser.isDepleted = currentTime => currentTime - laser.startTime > laser.lifeTime
 
   /**
    * Draw laser

@@ -1,5 +1,5 @@
 let population, games, canvas;
-let N_INPUTS = 16
+let N_INPUTS = 32
 let N_HIDDEN_NODES = 8
 let N_HIDDEN_LAYERS = 2
 let POP_SIZE = 20
@@ -7,11 +7,13 @@ let MUTATION_RATE = 0.05
 let generationCount = 0
 
 function setup() {
-  canvas = createCanvas(1000, 500)
+  canvas = createCanvas(1200, 600)
   canvas.parent("#cv")
 
   population = createPopulation(POP_SIZE)
   games = population.map(ai => Game(ai))
+
+  //skipForward(1)
 }
     
 function draw() {
@@ -22,13 +24,14 @@ function draw() {
   games.forEach(g => {
     if (!g.over) {
       allComplete = false
+      g.update()
       g.draw()
     }
-
-    fill(255)
-    textSize(32);
-    text(`Gen: ${generationCount}`, width-150, 30);
   })
+
+  fill(255)
+  textSize(32);
+  text(`Gen: ${generationCount}`, width-150, 30);
 
   if(allComplete) {
     generationCount += 1
@@ -66,4 +69,24 @@ function mutatePopulation(pop, games) {
     newPop.push(Neuroevolution.construct(N_INPUTS, N_HIDDEN_NODES, N_HIDDEN_LAYERS, 4))
   }
   return newPop
+}
+
+function skipForward(nGen) {
+  const startGen = generationCount
+  while (generationCount<startGen + nGen) {
+    let allComplete = true
+    games.forEach(g => {
+      if (!g.over) {
+        allComplete = false
+        g.update()
+      }
+    })
+
+    if(allComplete) {
+      generationCount += 1
+      population = mutatePopulation(population, games)
+      games = population.map(ai => Game(ai))
+    }
+  }
+
 }

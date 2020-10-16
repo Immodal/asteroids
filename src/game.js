@@ -2,19 +2,18 @@ Game = ai => {
   const gm = {}
 
   /**
-   * Draw function to be called by sketch.js
+   * Updates all game logic
    */
-  gm.draw = () => {
-    // Game Logic
-    const now = millis()
-    if (!gm.over && now - gm.lastUpdate > gm.updateInterval) {
-      gm.ship.takeActions(gm.lasers)
+  gm.update = () => {
+    if (!gm.over) {
+      gm.updateCount += 1
+      gm.ship.takeActions(gm.updateCount, gm.lasers)
       gm.ship.move()
       gm.asteroids.forEach(o => o.move())
 
       for(let i=gm.lasers.length-1; i>=0; i--) {
         gm.lasers[i].move()
-        if (gm.lasers[i].isDepleted()) gm.lasers.splice(i, 1)
+        if (gm.lasers[i].isDepleted(gm.updateCount)) gm.lasers.splice(i, 1)
         else {
           for(let j=gm.asteroids.length-1; j>=0; j--) {
             if (gm.lasers[i].collides(gm.asteroids[j])) {
@@ -31,13 +30,16 @@ Game = ai => {
       gm.asteroids.forEach(o => {if (o.collides(gm.ship)) gm.over = true})
       if (gm.asteroids.length<gm.nAsteroids) gm.spawnAsteroid()
       gm.ship.scan(gm.asteroids)
-      gm.lastUpdate = now
     }
-    
-    // Draw functions
+  }
+
+  /**
+   * Draw function to be called by sketch.js
+   */
+  gm.draw = () => {
     gm.asteroids.forEach(o => o.draw())
     gm.lasers.forEach(o => o.draw())
-    gm.ship.draw(gm._forwardKeysDown(), true)
+    gm.ship.draw(gm._forwardKeysDown(), false)
     gm.drawScore()
   }
 
@@ -58,7 +60,7 @@ Game = ai => {
       if (gm._forwardKeysDown()) gm.ship.accelerate() // up
       if (keyIsDown(37) || keyIsDown(65)) gm.ship.rotate(-1) // left
       if (keyIsDown(39) || keyIsDown(68)) gm.ship.rotate(1) // right
-      if (keyIsDown(32) && gm.ship.shoot()) gm.lasers.push(Laser(gm.ship)) // space
+      if (keyIsDown(32) && gm.ship.shoot()) gm.lasers.push(Laser(gm.updateCount, gm.ship)) // space
     }
   }
 
@@ -84,8 +86,7 @@ Game = ai => {
   gm.ship = Ship(width/2, height/2, 15, ai)
   gm.asteroids = Array.from(Array(gm.nAsteroids), gm.spawnAsteroid)
   gm.lasers = []
-  gm.lastUpdate = 0
-  gm.updateInterval = 10
+  gm.updateCount = 0
 
   return gm
 }
