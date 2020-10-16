@@ -1,7 +1,7 @@
 
 Asteroid = (x, y, size=2) => {
   let MAX_SPEED = 1.5
-  let SIZES = [10, 30, 50]
+  let SIZES = [20, 40, 80]
 
   const ast = SpaceObject(
     x, y, SIZES[size],

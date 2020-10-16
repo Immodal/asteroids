@@ -1,23 +1,28 @@
 Ship = (x, y, diameter, ai=null) => {
   const ship = SpaceObject(
     x, y, diameter,
-    0, 0.05,
+    0, 0.1,
     createVector(0,0), 3, 0.1
   )
 
   ship.bowProp = 0.7 // Proportion of diameter
   ship.aftProp = 1 - ship.bowProp
 
-  ship.weaponCd = 250
+  ship.weaponCd = 200
   ship.weaponLastFired = 0
 
   ship.ai = ai
-  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.ihWeights[0].length)
+  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.ihWeights[0].length-5)
 
   ship.takeActions = (currentTime, lasers) => {
     if (ship.ai!=null) {
-      let distances = ship.sensor.getResults()
-      let actions = ship.ai.predict(distances)
+      let data = ship.sensor.getResults()
+      data.push([ship.rotation/TWO_PI])
+      data.push([ship.velocity.x/ship.maxSpeed])
+      data.push([ship.velocity.y/ship.maxSpeed])
+      data.push([ship.pos.x/width])
+      data.push([ship.pos.y/height])
+      let actions = ship.ai.predict(data)
       
       if (actions[0][0]>0.5) ship.accelerate()
       if (actions[1][0]>0.5) ship.rotate(1)
@@ -49,18 +54,21 @@ Ship = (x, y, diameter, ai=null) => {
    * @param {Boolean} showThruster 
    * @param {Boolean} showSensor 
    */
-  ship.draw = (showThruster, showSensor) => {
+  ship.draw = (showSensor) => {
     const l = ship.diameter*ship.bowProp
     const w = ship.diameter*ship.aftProp
-
+    if (showSensor) ship.sensor.draw()
     applyMatrix(cos(ship.rotation), sin(ship.rotation), -sin(ship.rotation), cos(ship.rotation), ship.pos.x, ship.pos.y)
     fill(255)
     stroke(255)
     triangle(l, 0, -w, -w, -w, w)
-    if (showThruster && math.random() > 0.1) triangle(-l, 0, -w, -w/2, -w, w/2)
+    if (ship.accelerated) {
+      ship.accelerated = false
+      if (math.random() > 0.05)triangle(-l, 0, -w, -w/2, -w, w/2)
+    }
     resetMatrix()
 
-    if (showSensor) ship.sensor.draw()
+    
   }
 
   return ship

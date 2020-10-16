@@ -5,15 +5,16 @@ Sensor = (ship, nRays=16) => {
   sensor.results = []
 
   /**
-   * Reformat results for use in neural network
+   * Reformat and normalize results for use in neural network
    */
   sensor.getResults = () => {
     if(sensor.results.length==0) return Array.from(Array(nRays), () => [0])
     return sensor.results
       .map(res => res.intersections.reduce((acc, pt) => {
         const pDist = pt.dist(sensor.ship.pos)
-        return pDist < acc[0] ? [pDist] : acc
-      }, [width*10]))
+        return pDist < acc ? [pDist] : acc
+      }, width*10))
+      .map(dist => [dist/width])
   }
 
   /**
@@ -47,6 +48,7 @@ Sensor = (ship, nRays=16) => {
    * Draw results for sensor.scan
    */
   sensor.draw = () => {
+    stroke("#777777")
     for (let i=0; i<sensor.results.length; i++) {
       const ray = sensor.results[i].ray
       const intersections = sensor.results[i].intersections

@@ -12,6 +12,7 @@ SpaceObject = (x, y, diameter, rotation, rotationRate, velocity, maxSpeed, accel
   obj.velocity = velocity
   obj.maxSpeed = maxSpeed
   obj.acceleration = acceleration
+  obj.accelerated = false
 
   /**
    * Increase velocity
@@ -21,6 +22,7 @@ SpaceObject = (x, y, diameter, rotation, rotationRate, velocity, maxSpeed, accel
     // with magnitude equal to ship.acceleration
     obj.velocity.add(p5.Vector.fromAngle(obj.rotation, obj.acceleration))
     obj.velocity.limit(obj.maxSpeed)
+    obj.accelerated = true
   }
 
   /**
@@ -29,6 +31,7 @@ SpaceObject = (x, y, diameter, rotation, rotationRate, velocity, maxSpeed, accel
    */
   obj.rotate = dir => {
     obj.rotation += obj.rotationRate * dir
+    obj.rotation = obj.rotation < 0 ? TWO_PI - obj.rotation : obj.rotation
     obj.rotation %= TWO_PI // Prevent number from getting too big or small
   }
 

@@ -1,81 +1,56 @@
-let population, games, canvas;
-let N_INPUTS = 32
-let N_HIDDEN_NODES = 8
-let N_HIDDEN_LAYERS = 2
-let POP_SIZE = 20
-let MUTATION_RATE = 0.05
-let generationCount = 0
+let controls, games, canvas;
+const N_SENSOR_LINES = 32
+const N_SHIP_DATA_INPUTS = 5
+const N_INPUTS = N_SENSOR_LINES + N_SHIP_DATA_INPUTS
+const N_HIDDEN_NODES = N_INPUTS
+const N_HIDDEN_LAYERS = 3
+const N_OUTPUTS = 4
+const POP_SIZE = 50
+const MUTATION_RATE = 0.01
 
 function setup() {
-  canvas = createCanvas(1200, 600)
+  canvas = createCanvas(1000, 600)
   canvas.parent("#cv")
 
-  population = createPopulation(POP_SIZE)
-  games = population.map(ai => Game(ai))
-
-  //skipForward(1)
+  games = Population(POP_SIZE, N_INPUTS, N_HIDDEN_NODES, N_HIDDEN_LAYERS, N_OUTPUTS)
+  controls = Controls()
+  controls.init(skipForward)
 }
-    
+
+/**
+ * Draw
+ */
 function draw() {
   background(0)
   //game.actions()
 
   let allComplete = true
-  games.forEach(g => {
+  let drawn = false
+  games.data.forEach((g,i) => {
     if (!g.over) {
       allComplete = false
       g.update()
-      g.draw()
+      if (!drawn) {
+        drawn = true
+        g.draw()
+      }
     }
   })
 
-  fill(255)
-  textSize(32);
-  text(`Gen: ${generationCount}`, width-150, 30);
-
-  if(allComplete) {
-    generationCount += 1
-    population = mutatePopulation(population, games)
-    games = population.map(ai => Game(ai))
-  }
+  if(allComplete) games.mutate()
+  controls.updateInfo(games)
 }
 
-function createPopulation(size) {
-  return Array.from(
-    Array(size), 
-    () => Neuroevolution.construct(N_INPUTS, N_HIDDEN_NODES, N_HIDDEN_LAYERS, 4)
-  )
-}
-
-function mutatePopulation(pop, games) {
-  const mAndC = (np, ai, ratio) => {
-    for (let i=0; i<math.floor(POP_SIZE*ratio); i++) {
-      if (i==0) np.push(ai)
-      else np.push(ai.crossover(ranked[i][1]).mutate(MUTATION_RATE))
-    }
-  }
-
-  let ranked = games.map((g, i) => [g.score, pop[i]])
-  ranked.sort((a, b) => {
-    return a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0
-  })
-
-  let newPop = []
-  mAndC(newPop, ranked[0][1], 0.4)
-  mAndC(newPop, ranked[1][1], 0.2)
-  mAndC(newPop, ranked[2][1], 0.1)
-
-  for (let i=0; i<POP_SIZE-newPop.length; i++) {
-    newPop.push(Neuroevolution.construct(N_INPUTS, N_HIDDEN_NODES, N_HIDDEN_LAYERS, 4))
-  }
-  return newPop
-}
-
+/**
+ * Skip forward a number of generations as fast as possible
+ * @param {Integer} nGen 
+ */
 function skipForward(nGen) {
-  const startGen = generationCount
-  while (generationCount<startGen + nGen) {
+  console.log(`Skipping ${nGen} Generations starting at ${games.generation}. Time: ${new Date().toUTCString()}`)
+  const startGen = games.generation
+  while (games.generation<startGen + nGen) {
     let allComplete = true
-    games.forEach(g => {
+    games.data.forEach(g => {
       if (!g.over) {
         allComplete = false
         g.update()
@@ -83,10 +58,9 @@ function skipForward(nGen) {
     })
 
     if(allComplete) {
-      generationCount += 1
-      population = mutatePopulation(population, games)
-      games = population.map(ai => Game(ai))
+      console.log(`Generation ${games.generation} Complete. ${(startGen + nGen) - games.generation} Remaining. Time: ${new Date().toUTCString()}`)
+      games.mutate()
+      console.log(`Starting Generation ${games.generation}. Time: ${new Date().toUTCString()}`)
     }
   }
-
 }

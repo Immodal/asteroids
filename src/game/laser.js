@@ -7,7 +7,7 @@ Laser = (startTime, ship) => {
     p5.Vector.mult(p5.Vector.fromAngle(ship.rotation),MAX_SPEED), MAX_SPEED, 0
   )
 
-  laser.lifeTime = 75
+  laser.lifeTime = (width+height)*0.03
   laser.startTime = startTime
 
   /**
@@ -20,8 +20,8 @@ Laser = (startTime, ship) => {
    */
   laser.draw = () => {
     applyMatrix(cos(laser.rotation), sin(laser.rotation), -sin(laser.rotation), cos(laser.rotation), laser.pos.x, laser.pos.y)
-    fill(255)
-    stroke(255)
+    fill("#ff0000")
+    stroke("#ff0000")
     circle(0, 0, laser.diameter)
     resetMatrix()
   }
