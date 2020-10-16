@@ -1,22 +1,24 @@
-Population = (size, nIn, nHidden, nHiddenLayers, nOutputs) => {
+Population = (size, nInputs, nOutputs) => {
   const np = {}
-  np.generation = 0
-  np.nIn = nIn
-  np.nHidden = nHidden
-  np.nHiddenLayers = nHiddenLayers
-  np.nOutputs = nOutputs
-  np.data = Array.from(
-    Array(size), 
-    () => Game(Neuroevolution.construct(nIn, nHidden, nHiddenLayers, nOutputs))
-  )
+
+  np.randomNetwork = () => {
+    return Game(Neuroevolution.construct(
+      nInputs, 
+      math.randomInt(min(nOutputs, nInputs), max(nOutputs, nInputs)), 
+      math.randomInt(1, 3), 
+      nOutputs))
+  }
 
   /**
    * Rank each game by network fitness
    */
   np.rank = () => {
     let maxScore = np.data.reduce((acc,g) => g.score>acc ? g.score : acc, 1)
+    np.topScores.push(maxScore)
     let maxLife = np.data.reduce((acc,g) => g.stopTime>acc ? g.stopTime : acc, 1)
-    let ranked = np.data.map(g => [g.score/maxScore*0.6 + g.stopTime/maxLife*0.4, g])
+    np.topLives.push(maxLife)
+    let ranked = np.data.map(g => [g.score/maxScore*0.6 + g.stopTime/maxLife*0.3 + g.ship.velocity.mag()>0 ? 0.1: 0, g])
+
     ranked.sort((a, b) => {
       return a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0
     })
@@ -26,33 +28,33 @@ Population = (size, nIn, nHidden, nHiddenLayers, nOutputs) => {
   /**
    * Use the top performers to generate a new population
    */
-  np.mutate = () => {
-    const m = (arr, game, ratio) => {
-      for (let i=0; i<np.data.length*ratio; i++) {
-        if (i==0) arr.push(Game(game.ship.ai))
-        else arr.push(Game(game.ship.ai.mutate()))
-      }
-    }
-  
-    const fillEmpty = (arr) => {
-      const nRandom = np.data.length-arr.length
-      for (let i=0; i<nRandom; i++) {
-        arr.push(Game(Neuroevolution.construct(np.nIn, np.nHidden, np.nHiddenLayers, np.nOutputs)))
-      }
-    }
-
+  np.mutate = (mutationRate, mutationSD) => {
     newData = []
     np.rank()
-    m(newData, np.data[0], 0.25)
-    m(newData, np.data[1], 0.25)
-    m(newData, np.data[2], 0.15)
-    m(newData, np.data[3], 0.15)
-    m(newData, np.data[4], 0.15)
-    fillEmpty(newData)
+
+    for (let i=0; i<np.data.length*0.5; i++) {
+      if (i==0) newData.push(Game(np.data[0].ship.ai))
+      else newData.push(Game(np.data[0].ship.ai.mutate(mutationRate, mutationSD)))
+    }
+
+    const nRandom = np.data.length-newData.length
+    for (let i=0; i<nRandom; i++) {
+      newData.push(np.randomNetwork())
+    }
 
     np.generation += 1
     np.data = newData
   }
+
+  np.generation = 0
+  np.nInputs = nInputs
+  np.nOutputs = nOutputs
+  np.data = Array.from(
+    Array(size), 
+    () => np.randomNetwork()
+  )
+  np.topScores = []
+  np.topLives = []
 
   return np
 }

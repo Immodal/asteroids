@@ -2,17 +2,16 @@ let controls, games, canvas;
 const N_SENSOR_LINES = 32
 const N_SHIP_DATA_INPUTS = 5
 const N_INPUTS = N_SENSOR_LINES + N_SHIP_DATA_INPUTS
-const N_HIDDEN_NODES = N_INPUTS
-const N_HIDDEN_LAYERS = 3
 const N_OUTPUTS = 4
 const POP_SIZE = 50
 const MUTATION_RATE = 0.01
+const MUTATION_SD = 0.1
 
 function setup() {
   canvas = createCanvas(1000, 600)
   canvas.parent("#cv")
 
-  games = Population(POP_SIZE, N_INPUTS, N_HIDDEN_NODES, N_HIDDEN_LAYERS, N_OUTPUTS)
+  games = Population(POP_SIZE, N_INPUTS, N_OUTPUTS)
   controls = Controls()
   controls.init(skipForward)
 }
@@ -37,7 +36,7 @@ function draw() {
     }
   })
 
-  if(allComplete) games.mutate()
+  if(allComplete) games.mutate(MUTATION_RATE, MUTATION_SD)
   controls.updateInfo(games)
 }
 
@@ -59,7 +58,7 @@ function skipForward(nGen) {
 
     if(allComplete) {
       console.log(`Generation ${games.generation} Complete. ${(startGen + nGen) - games.generation} Remaining. Time: ${new Date().toUTCString()}`)
-      games.mutate()
+      games.mutate(MUTATION_RATE, MUTATION_SD)
       console.log(`Starting Generation ${games.generation}. Time: ${new Date().toUTCString()}`)
     }
   }

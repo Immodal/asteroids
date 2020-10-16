@@ -105,8 +105,8 @@ Neuroevolution = {
      * Create a clone of this network and mutate according to mutationRate
      * @param {Float} mutationRate 
      */
-    ne.mutate = (mutationRate=0.01) => {
-      const mu = node => node.map(w => math.random()<mutationRate ? math.random(-1, 1) : w)
+    ne.mutate = (mutationRate=0.01, mutationSD=0.1) => {
+      const mu = node => node.map(w => math.random()<mutationRate ? w + randomGaussian(0, mutationSD) : w)
       let nec = Neuroevolution.construct(
         ne.ihWeights[0].length, 
         ne.ihWeights.length, 

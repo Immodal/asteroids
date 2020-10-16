@@ -2,7 +2,7 @@ Ship = (x, y, diameter, ai=null) => {
   const ship = SpaceObject(
     x, y, diameter,
     0, 0.1,
-    createVector(0,0), 3, 0.1
+    createVector(0,0), 3, 0.2
   )
 
   ship.bowProp = 0.7 // Proportion of diameter
