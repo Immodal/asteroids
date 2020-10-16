@@ -1,12 +1,12 @@
 
 Asteroid = (x, y, size=2) => {
-  let MAX_SPEED = 1.5
+  let MAX_SPEEDS = [1.5, 1, 0.5]
   let SIZES = [20, 40, 80]
 
   const ast = SpaceObject(
     x, y, SIZES[size],
     0, 0.05,
-    p5.Vector.mult(p5.Vector.random2D(), MAX_SPEED), MAX_SPEED, 0
+    p5.Vector.mult(p5.Vector.random2D(), MAX_SPEEDS[size]), MAX_SPEEDS[size], 0
   )
 
   ast.size = size

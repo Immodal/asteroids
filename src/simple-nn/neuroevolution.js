@@ -106,7 +106,11 @@ Neuroevolution = {
      * @param {Float} mutationRate 
      */
     ne.mutate = (mutationRate=0.01, mutationSD=0.1) => {
-      const mu = node => node.map(w => math.random()<mutationRate ? w + randomGaussian(0, mutationSD) : w)
+      const mu = node => node.map(w => 
+        math.random()<mutationRate ? 
+          math.random()<0.1 ? // Chance to completely change rather than nudge
+            math.random(-1, 1) : w + randomGaussian(0, mutationSD) :
+          w)
       let nec = Neuroevolution.construct(
         ne.ihWeights[0].length, 
         ne.ihWeights.length, 

@@ -83,7 +83,7 @@ Game = ai => {
       math.pickRandom([left, right, top, bottom])()
 
     let ast = spawn()
-    while (ast.pos.dist(gm.ship.pos)<ast.diameter*2) ast = spawn()
+    while (ast.pos.dist(gm.ship.pos)<ast.diameter*1.5) ast = spawn()
     return ast
   }
 

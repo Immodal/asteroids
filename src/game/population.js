@@ -15,9 +15,10 @@ Population = (size, nInputs, nOutputs) => {
   np.rank = () => {
     let maxScore = np.data.reduce((acc,g) => g.score>acc ? g.score : acc, 1)
     np.topScores.push(maxScore)
-    let maxLife = np.data.reduce((acc,g) => g.stopTime>acc ? g.stopTime : acc, 1)
-    np.topLives.push(maxLife)
-    let ranked = np.data.map(g => [g.score/maxScore*0.6 + g.stopTime/maxLife*0.3 + g.ship.velocity.mag()>0 ? 0.1: 0, g])
+    //let maxLife = np.data.reduce((acc,g) => g.stopTime>acc ? g.stopTime : acc, 1)
+    //np.topLives.push(maxLife)
+    //let ranked = np.data.map(g => [g.score/maxScore*0.6 + g.stopTime/maxLife*0.3 + g.ship.velocity.mag()>0 ? 0.1: 0, g])
+    let ranked = np.data.map(g => [g.score/maxScore, g])
 
     ranked.sort((a, b) => {
       return a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0
@@ -32,9 +33,13 @@ Population = (size, nInputs, nOutputs) => {
     newData = []
     np.rank()
 
-    for (let i=0; i<np.data.length*0.5; i++) {
+    for (let i=0; i<np.data.length*0.25; i++) {
       if (i==0) newData.push(Game(np.data[0].ship.ai))
       else newData.push(Game(np.data[0].ship.ai.mutate(mutationRate, mutationSD)))
+    }
+
+    for (let i=1; i<np.data.length*0.5; i++) {
+      newData.push(Game(np.data[i].ship.ai.mutate(mutationRate, mutationSD)))
     }
 
     const nRandom = np.data.length-newData.length
