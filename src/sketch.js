@@ -11,7 +11,7 @@ function setup() {
   canvas = createCanvas(1000, 600)
   canvas.parent("#cv")
 
-  games = Population(POP_SIZE, N_INPUTS, N_OUTPUTS)
+  games = NeuroevolutionPopulation(POP_SIZE, N_INPUTS, N_OUTPUTS)
   controls = Controls()
   controls.init(skipForward)
 }

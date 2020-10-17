@@ -18,6 +18,7 @@ Game = ai => {
           for(let j=gm.asteroids.length-1; j>=0; j--) {
             if (gm.lasers[i].collides(gm.asteroids[j])) {
               gm.lasers.splice(i, 1)
+              gm.ship.shotHits += 1
               gm.asteroids.push(...gm.asteroids[j].breakUp())
               gm.asteroids.splice(j, 1)
               gm.score += 1

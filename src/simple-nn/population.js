@@ -1,4 +1,4 @@
-Population = (size, nInputs, nOutputs) => {
+NeuroevolutionPopulation = (size, nInputs, nOutputs) => {
   const np = {}
 
   np.randomNetwork = () => {

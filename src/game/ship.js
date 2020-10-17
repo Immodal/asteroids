@@ -10,6 +10,8 @@ Ship = (x, y, diameter, ai=null) => {
 
   ship.weaponCd = 200
   ship.weaponLastFired = 0
+  ship.shotCount = 0
+  ship.shitHits = 0
 
   ship.ai = ai
   ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.ihWeights[0].length-5)
@@ -44,6 +46,7 @@ Ship = (x, y, diameter, ai=null) => {
     const now = millis()
     if(now - ship.weaponLastFired > ship.weaponCd) {
       ship.weaponLastFired = now
+      ship.shotCount += 1
       return true
     }
     return false

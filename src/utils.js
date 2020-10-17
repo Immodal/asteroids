@@ -6,11 +6,6 @@ const Utils = {
   isNumber: n => !isNaN(parseFloat(n)) && !isNaN(n - 0),
 
   /**
-   * Returns an Array of numbers 0 -> (n-1)
-   */
-  range: n => Array(n).fill().map((_, i) => i),
-
-  /**
    * Shuffles array in place
    */
   shuffle: arr => {
