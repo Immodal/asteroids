@@ -32,7 +32,7 @@ SpaceObject = (x, y, diameter, rotation, rotationRate, velocity, maxSpeed, accel
    */
   obj.rotate = dir => {
     obj.rotation += obj.rotationRate * dir
-    obj.rotation = obj.rotation < 0 ? TWO_PI - obj.rotation : obj.rotation
+    obj.rotation = obj.rotation < 0 ? obj.rotation + TWO_PI : obj.rotation
     obj.rotation %= TWO_PI // Prevent number from getting too big or small
   }
 

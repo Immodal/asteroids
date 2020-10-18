@@ -74,7 +74,7 @@ Population = (size, nInputs, nOutputs, seed=null) => {
     // Sort species by the fitness of their top member, remove stale species
     pn.species = pn.species
       .sort((a, b) => a.bestFitness>b.bestFitness ? -1 : a.bestFitness<b.bestFitness ? 1 : 0)
-      .filter((s, i) => i<2 || s.staleness<pn.STALENESS_THRESHOLD)
+      .filter((s, i) => (i==0 && s.members.length>0) || s.staleness<pn.STALENESS_THRESHOLD)
     // Reproduction
     const totalAvgFitness = pn.species.reduce((acc, s) => acc + s.avgFitness)
     const children = []
@@ -90,7 +90,9 @@ Population = (size, nInputs, nOutputs, seed=null) => {
     nFill = pn.members.length-children.length
     for (let i=0; i<nFill; i++) {
       const sp = pn.species[0]
-      children.push(sp.getOffspring(pn.innovationHistory, sp.members[0][sp.MEMBER_IND]))
+      const c = sp.getGenome(sp.members[0][sp.MEMBER_IND]).clone()
+      c.mutate(pn.innovationHistory)
+      children.push(c)
     }
 
     pn.memberSeed = random(pn.MAGIC_NO)

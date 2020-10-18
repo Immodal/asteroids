@@ -14,7 +14,7 @@ Sensor = (ship, nRays=16) => {
         const pDist = pt.dist(sensor.ship.pos)
         return pDist < acc ? pDist : acc
       }, width*10))
-      .map(dist => dist/height)
+      .map(dist => dist/(width*1.5))
   }
 
   /**

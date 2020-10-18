@@ -2,7 +2,7 @@ Ship = (x, y, diameter, ai=null) => {
   const ship = SpaceObject(
     x, y, diameter,
     0, 0.1,
-    createVector(0,0), 3, 0.2
+    createVector(0,0), 3, 0.1
   )
 
   ship.bowProp = 0.7 // Proportion of diameter
@@ -14,7 +14,7 @@ Ship = (x, y, diameter, ai=null) => {
   ship.shotHits = 0
 
   ship.ai = ai
-  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.nInputs-3)
+  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.nInputs-5) // - Ship data inputs
 
   ship.takeActions = (currentTime, lasers) => {
     if (ship.ai!=null) {
@@ -22,6 +22,8 @@ Ship = (x, y, diameter, ai=null) => {
       data.push(ship.rotation/TWO_PI)
       data.push(ship.pos.x/width)
       data.push(ship.pos.y/height)
+      data.push(ship.velocity.mag()/ship.maxSpeed)
+      data.push(ship.rotation/TWO_PI)
       let actions = ship.ai.feedForward(data)
       
       if (actions[0]>0.5) ship.accelerate()

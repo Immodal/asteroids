@@ -14,7 +14,8 @@ Game = (ai, seed=null) => {
     gm.score = 0
     gm.over = false
     gm.ship = Ship(width/2, height/2, 45, ai)
-    gm.asteroids = Array.from(Array(gm.nAsteroids), (_, i) => gm.spawnAsteroid(i==0))
+    gm.asteroids = Array.from(Array(gm.nAsteroids-1), (_, i) => gm.spawnAsteroid(i==0))
+    gm.asteroids.push(Asteroid(400, height/2, createVector(100, 0)))
     gm.lasers = []
     gm.updateCount = 0
     return gm
@@ -23,10 +24,10 @@ Game = (ai, seed=null) => {
   /**
    * Updates all game logic
    */
-  gm.update = () => {
+  gm.update = (auto=true) => {
     if (!gm.over) {
       gm.updateCount += 1
-      gm.ship.takeActions(gm.updateCount, gm.lasers)
+      if(auto) gm.ship.takeActions(gm.updateCount, gm.lasers)
       gm.ship.move()
       gm.asteroids.forEach(o => o.move())
 

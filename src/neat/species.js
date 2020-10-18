@@ -2,7 +2,7 @@ Species = (getGenome, calcFitness, member) => {
   const sp = {}
 
   const init = () => {
-    sp.compatibilityThreshold = 1
+    sp.compatibilityThreshold = 0.10
     sp.excessAndDisjointCoeff = 1
     sp.weightDiffCoeff = 0.5
 
@@ -37,18 +37,35 @@ Species = (getGenome, calcFitness, member) => {
    * Get A Offspring of the species
    * @param {InnovationHistory} iHist
    */
-  sp.getOffspring = (iHist, parent1=null) => {
-    if (parent1==null) parent1 = Utils.pickRandom(sp.members)
+  sp.getOffspring = (iHist) => {
+    let child = null
+    if (random()<0.25) { // 25% Chance to be a clone
+      child = sp.getGenome(sp.members[sp.getRandomMemberInd()]).clone()
+    } else { // 75% chance of crossover
+      let p1Tup = sp.members[sp.getRandomMemberInd()]
+      let p2Tup = sp.members[sp.getRandomMemberInd()]
+      if (p1Tup[sp.FITNESS_IND] < p2Tup[sp.FITNESS_IND]) {
+        child = sp.getGenome(p2Tup[sp.MEMBER_IND]).crossover(sp.getGenome(p1Tup[sp.MEMBER_IND]))
+      } else {
+        child = sp.getGenome(p1Tup[sp.MEMBER_IND]).crossover(sp.getGenome(p2Tup[sp.MEMBER_IND]))
+      }
+    }
 
-    const os = sp.getGenome(parent1).clone()
-    os.mutate(iHist)
-    return os
-    // TODO Crossover
-    /*if (random(1) < 0.25) {
-      baby = this.selectPlayer().clone();
-    } else {
-      //crossover
-    }*/
+    child.mutate(iHist)
+    return child
+  }
+
+  /**
+   * Get random member index weighted by fitness
+   */
+  sp.getRandomMemberInd = () => {
+    const rand = random()
+    // 50% chance to take from top 25% of members
+    if(rand<0.5) return Utils.randomInt(0, floor(sp.members.length*0.25))
+    // 25% chance to take from top 25% - 50% of members
+    else if(rand<0.75) return Utils.randomInt(floor(sp.members.length*0.25), floor(sp.members.length*0.5))
+    // 25% chance to take from bottom 50% of members
+    else return Utils.randomInt(floor(sp.members.length*0.5), sp.members.length)
   }
 
   /**
@@ -70,8 +87,8 @@ Species = (getGenome, calcFitness, member) => {
       sp.staleness = 200 // Arbitrary
     } else {
       sp.avgFitness = sp.members.reduce((acc, tup) => acc+tup[sp.FITNESS_IND], 0)/sp.members.length
-      if (sp.members[0][sp.FITNESS_IND] >= sp.bestFitness) { // New top dog
-        sp.bestFitness = sp.members[0][0]
+      if (sp.members[0][sp.FITNESS_IND]*sp.members.length >= sp.bestFitness) { // New top dog
+        sp.bestFitness = sp.members[0][0]*sp.members.length
         sp.staleness = 0
         sp.rep = sp.getGenome(sp.members[0][sp.MEMBER_IND]).clone()
       } else sp.staleness += 1

@@ -1,7 +1,7 @@
 /**
  * Genome based on NEAT
  */
-Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
+Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
   const gn = {}
 
   /**
@@ -33,7 +33,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
     if (fullyConnect) {
       for(let i=0; i<gn.nInputs+1; i++) {
         for(let j=0; j<gn.nOutputs; j++) {
-          const innovation = innoHist.add(gn.nodes[i].id, gn.nodes[gn.nInputs+1+j], gn.getInnovations())
+          const innovation = innoHist.add(gn.nodes[i].id, gn.nodes[gn.nInputs+1+j])
           const connection = ConnectionGene(gn.nodes[i], gn.nodes[gn.nInputs+1+j], random(-1, 1), innovation)
           gn.connections.push(connection)
         }
@@ -62,6 +62,54 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
     // TODO Possible to optimize Genome to not need this method?
     gn.nodes.forEach(n => n.connections = [])
     gn.connections.forEach(c => c.from.connections.push(c))
+  }
+
+  /**
+   * Crossover this genome with another. Assumes this is the fitter genome.
+   * @param {Genome} other 
+   */
+  gn.crossover = (other) => {
+    // find connection in other with matching innovation number
+    const findMatch = (innovation) => {
+      for(let i=0; i<other.connections.length; i++) {
+        if(other.connections[i].id==innovation) return other.connections[i]
+      }
+      return null
+    }
+    
+    // Inherit Genes, prioritizing this, the fittest parent
+    const childConnections = []
+    const isEnabled = []
+    for (let i=0; i<gn.connections.length; i++) {
+      let setEnabled = true
+      let otherConnection = findMatch(gn.connections[i].innovation)
+      if (otherConnection!=null) {
+        // If disabled in either parent, 75% chance of being disabled in child
+        if ((!gn.connections[i].enabled || !otherConnection.enabled) && random() < 0.75) {
+          setEnabled = false
+        }
+        // 50% chance to inherit from either parent
+        childConnections.push(random()<0.5 ? gn.connections[i] : otherConnection) 
+      } else {
+        // Inherit all excess and disjoint from this
+        childConnections.push(gn.connections[i]) 
+        setEnabled = gn.connections[i].enabled
+      }
+      isEnabled.push(setEnabled)
+    }
+
+    // Since all excess and disjoint genes are inherited from the fitter parent (this), the child's structure is the same as this parent.
+    // So we can clone all the nodes from this parent
+    const child = gn.clone(true)
+    child.nodes = gn.nodes.map(n => n.clone())
+    child.connections = childConnections.map((c, i) => {
+      const cc = c.clone(child.getNode(c.from.id), child.getNode(c.to.id))
+      cc.enabled = isEnabled[i]
+      return cc
+    })
+    child.generateNetwork()
+
+    return child
   }
 
   /**
@@ -101,13 +149,13 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
     const newNode = NodeGene(gn.nextNodeNum++, connection.from.layer+1)
     gn.nodes.push(newNode)
     // Connect to newNode with weight of 1
-    const innovation1 = iHist.add(connection.from.id, newNode.id, gn.getInnovations())
+    const innovation1 = iHist.add(connection.from.id, newNode.id)
     gn.connections.push(ConnectionGene(connection.from, newNode, 1, innovation1))
     // Connect newNode to the "to" node of the disabled connection
-    const innovation2 = iHist.add(newNode.id, connection.to.id, gn.getInnovations())
+    const innovation2 = iHist.add(newNode.id, connection.to.id)
     gn.connections.push(ConnectionGene(newNode, connection.to, connection.weight, innovation2))
     // Connect bias node to newNode with weight of 0
-    const innovation3 = iHist.add(gn.nodes[gn.BIAS_IND].id, newNode.id, gn.getInnovations())
+    const innovation3 = iHist.add(gn.nodes[gn.BIAS_IND].id, newNode.id)
     gn.connections.push(ConnectionGene(gn.nodes[gn.BIAS_IND], newNode, 0, innovation3))
     // If layer of newNode is equal to "to" layer, increment the layer number of all nodes that are
     // greater than or equal to newNode.layer, as well as genome layer count
@@ -140,7 +188,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
       n2 = temp
     }
 
-    const innovation = iHist.add(n1.id, n2.id, gn.getInnovations())
+    const innovation = iHist.add(n1.id, n2.id)
     gn.connections.push(ConnectionGene(n1, n2, random(-1, 1), innovation))
     gn.refreshConnections()
   }
@@ -188,14 +236,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
   }
 
   /**
-   * Generate a list of innovation numbers for this genome
-   */
-  gn.getInnovations = () => gn.connections.map(c => c.innovation).sort((a,b)=> a<b ? -1 : a>b ? 1 : 0)
-
-  /**
    * Create a deep copy of this genome
    */
-  gn.clone = () => {
+  gn.clone = (partial=false) => {
     const gnc = Genome()
     gnc.weightMutationRate = gn.weightMutationRate
     gnc.newConnectionRate = gn.newConnectionRate
@@ -207,10 +250,16 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
     gnc.nLayers = gn.nLayers
     gnc.BIAS_IND = gn.BIAS_IND
 
-    // Clone nodes and then use them when cloning connections
-    gnc.nodes = gn.nodes.map(n => n.clone())
-    gnc.connections = gn.connections.map(c => c.clone(gnc.getNode(c.from.id), gnc.getNode(c.to.id)))
-    gnc.generateNetwork()
+    if (partial) {
+      gnc.nodes = []
+      gnc.connections = []
+      gnc.network = []
+    } else {
+      // Clone nodes and then use them when cloning connections
+      gnc.nodes = gn.nodes.map(n => n.clone())
+      gnc.connections = gn.connections.map(c => c.clone(gnc.getNode(c.from.id), gnc.getNode(c.to.id)))
+      gnc.generateNetwork()
+    }
     return gnc
   }
 
