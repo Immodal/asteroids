@@ -11,25 +11,23 @@ Ship = (x, y, diameter, ai=null) => {
   ship.weaponCd = 200
   ship.weaponLastFired = 0
   ship.shotCount = 0
-  ship.shitHits = 0
+  ship.shotHits = 0
 
   ship.ai = ai
-  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.ihWeights[0].length-5)
+  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.nInputs-3)
 
   ship.takeActions = (currentTime, lasers) => {
     if (ship.ai!=null) {
       let data = ship.sensor.getResults()
-      data.push([ship.rotation/TWO_PI])
-      data.push([ship.velocity.x/ship.maxSpeed])
-      data.push([ship.velocity.y/ship.maxSpeed])
-      data.push([ship.pos.x/width])
-      data.push([ship.pos.y/height])
-      let actions = ship.ai.predict(data)
+      data.push(ship.rotation/TWO_PI)
+      data.push(ship.pos.x/width)
+      data.push(ship.pos.y/height)
+      let actions = ship.ai.feedForward(data)
       
-      if (actions[0][0]>0.5) ship.accelerate()
-      if (actions[1][0]>0.5) ship.rotate(1)
-      if (actions[2][0]>0.5) ship.rotate(-1)
-      if (actions[3][0]>0.5 && ship.shoot()) lasers.push(Laser(currentTime, ship))
+      if (actions[0]>0.5) ship.accelerate()
+      if (actions[1]>0.5) ship.rotate(1)
+      if (actions[2]>0.5) ship.rotate(-1)
+      if (actions[3]>0.5 && ship.shoot()) lasers.push(Laser(currentTime, ship))
     }
   }
 

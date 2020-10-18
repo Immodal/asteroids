@@ -1,17 +1,15 @@
 let controls, games, canvas;
 const N_SENSOR_LINES = 32
-const N_SHIP_DATA_INPUTS = 5
+const N_SHIP_DATA_INPUTS = 3
 const N_INPUTS = N_SENSOR_LINES + N_SHIP_DATA_INPUTS
 const N_OUTPUTS = 4
-const POP_SIZE = 50
-const MUTATION_RATE = 0.01
-const MUTATION_SD = 0.1
+const POP_SIZE = 10
 
 function setup() {
   canvas = createCanvas(1000, 600)
   canvas.parent("#cv")
 
-  games = NeuroevolutionPopulation(POP_SIZE, N_INPUTS, N_OUTPUTS)
+  games = Population(POP_SIZE, N_INPUTS, N_OUTPUTS)
   controls = Controls()
   controls.init(skipForward)
 }
@@ -25,7 +23,7 @@ function draw() {
 
   let allComplete = true
   let drawn = false
-  games.data.forEach((g,i) => {
+  games.members.forEach((g,i) => {
     if (!g.over) {
       allComplete = false
       g.update()
@@ -36,7 +34,7 @@ function draw() {
     }
   })
 
-  if(allComplete) games.mutate(MUTATION_RATE, MUTATION_SD)
+  if(allComplete) games.naturalSelection()
   controls.updateInfo(games)
 }
 
@@ -49,7 +47,7 @@ function skipForward(nGen) {
   const startGen = games.generation
   while (games.generation<startGen + nGen) {
     let allComplete = true
-    games.data.forEach(g => {
+    games.members.forEach(g => {
       if (!g.over) {
         allComplete = false
         g.update()
@@ -58,7 +56,7 @@ function skipForward(nGen) {
 
     if(allComplete) {
       console.log(`Generation ${games.generation} Complete. ${(startGen + nGen) - games.generation} Remaining. Time: ${new Date().toUTCString()}`)
-      games.mutate(MUTATION_RATE, MUTATION_SD)
+      games.naturalSelection()
       console.log(`Starting Generation ${games.generation}. Time: ${new Date().toUTCString()}`)
     }
   }

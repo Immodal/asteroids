@@ -8,13 +8,13 @@ Sensor = (ship, nRays=16) => {
    * Reformat and normalize results for use in neural network
    */
   sensor.getResults = () => {
-    if(sensor.results.length==0) return Array.from(Array(nRays), () => [0])
+    if(sensor.results.length==0) return Array.from(Array(nRays), () => 0)
     return sensor.results
       .map(res => res.intersections.reduce((acc, pt) => {
         const pDist = pt.dist(sensor.ship.pos)
-        return pDist < acc ? [pDist] : acc
+        return pDist < acc ? pDist : acc
       }, width*10))
-      .map(dist => [dist/width])
+      .map(dist => dist/height)
   }
 
   /**

@@ -24,7 +24,7 @@ NodeGene = (id, layer) => {
    * Activation function
    * @param {Float} x 
    */
-  node.sigmoid = x => 1/(1+math.exp(-x))
+  node.sigmoid = x => 1/(1+exp(-x))
 
   /**
    * Check if other is connected to this node

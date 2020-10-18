@@ -7,7 +7,7 @@ InnovationHistory = (startNum) => {
   /**
    * Initialize all values for the object
    */
-  constructor = () => {
+  const init = () => {
     ih.current = startNum
     ih.entries = []
     return ih
@@ -24,9 +24,9 @@ InnovationHistory = (startNum) => {
       if(ih.entries[i].matches(fId, tId, gInnovations)) return ih.entries[i].innovation
     }
     const entry = InnovationEntry(fId, tId, ih.current++, gInnovations)
-    ih.push(entry)
+    ih.entries.push(entry)
     return entry.innovation
   }
 
-  return constructor()
+  return init()
 }

@@ -7,7 +7,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
   /**
    * Initialize all values for the object
    */
-  constructor = () => {
+  const init = () => {
     // If not all params are supplied, the constructor will assume this is used for cloning and not run
     if (nInputs==null || nOutputs==null || innoHist==null) return gn
     gn.weightMutationRate = 0.8
@@ -23,7 +23,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
     // Create bias, input and output nodes
     // TODO Possibly support starting with a totally unconnected network
     gn.nodes = Array.from(
-      Array(math.range(0, 1+gn.nInputs+gn.nOutputs)),
+      Utils.range(1+gn.nInputs+gn.nOutputs),
       i => NodeGene(gn.nextNodeNum++, i>=gn.nInputs+1 ? 1 : 0)
     )
     // Connect all bias/inputs directly to all outputs
@@ -32,7 +32,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
     for(let i=0; i<gn.nInputs+1; i++) {
       for(let j=0; j<gn.nOutputs; j++) {
         const innovation = innoHist.add(gn.nodes[i].id, gn.nodes[gn.nInputs+1+j], gn.getInnovations())
-        const connection = ConnectionGene(gn.nodes[i], gn.nodes[gn.nInputs+1+j], math.random(-1, 1), innovation)
+        const connection = ConnectionGene(gn.nodes[i], gn.nodes[gn.nInputs+1+j], random(-1, 1), innovation)
         gn.connections.push(connection)
       }
     }
@@ -66,9 +66,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
    */
   gn.mutate = (iHist) => {
     if (gn.connections.length == 0) gn.addConnection(iHist)
-    if (math.random()<weightMutationRate) gn.connections.forEach(c => c.mutate())
-    if (math.random()<newConnectionRate) gn.addConnection(iHist)
-    if (math.random()<newNodeRate) gn.addNode(iHist)
+    if (random()<gn.weightMutationRate) gn.connections.forEach(c => c.mutate())
+    if (random()<gn.newConnectionRate) gn.addConnection(iHist)
+    if (random()<gn.newNodeRate) gn.addNode(iHist)
   }
 
   /**
@@ -87,9 +87,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
    */
   gn.addNode = (iHist) => {
     // Pick a random connection excluding from Bias nodes
-    let connection = math.pickRandom(gn.connections)
+    let connection = Utils.pickRandom(gn.connections)
     while(connection.from == gn.nodes[gn.BIAS_IND]) {
-      connection = math.pickRandom(gn.connections)
+      connection = Utils.pickRandom(gn.connections)
     }
     // Disable node
     connection.enabled = false
@@ -122,12 +122,12 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
     if (gn.isFullyConnected()) return null
     // Get Random Nodes
     // TODO Optimize
-    let n1 = math.pickRandom(gn.nodes)
-    let n2 = math.pickRandom(gn.nodes)
+    let n1 = Utils.pickRandom(gn.nodes)
+    let n2 = Utils.pickRandom(gn.nodes)
     while (n1.layer == n2.layer || n1.connectedTo(n2)) {
       //get new ones
-      n1 = math.pickRandom(gn.nodes)
-      n2 = math.pickRandom(gn.nodes)
+      n1 = Utils.pickRandom(gn.nodes)
+      n2 = Utils.pickRandom(gn.nodes)
     }
     // Make sure the node with the earliest layer is n1
     if (n1.layer>n2.layer) {
@@ -137,7 +137,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
     }
 
     const innovation = iHist.add(n1.id, n2.id, gn.getInnovations())
-    gn.connections.push(ConnectionGene(n1, n2, math.random(-1, 1), innovation))
+    gn.connections.push(ConnectionGene(n1, n2, random(-1, 1), innovation))
     gn.refreshConnections()
   }
 
@@ -167,7 +167,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
    */
   gn.feedForward = (inputs) => {
     // Set input values into the input nodes
-    gn.nodes[BIAS_IND].input = 1
+    gn.nodes[gn.BIAS_IND].input = 1
     for(let i=1; i<gn.nInputs; i++) {
       gn.nodes[i].input = inputs[i-1]
     }
@@ -186,7 +186,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
   /**
    * Generate a list of innovation numbers for this genome
    */
-  gn.getInnovations = () => math.sort(gn.connections.map(c => c.innovation))
+  gn.getInnovations = () => gn.connections.map(c => c.innovation).sort((a,b)=> a<b ? -1 : a>b ? 1 : 0)
 
   /**
    * Create a deep copy of this genome
@@ -207,7 +207,8 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
     gnc.nodes = gn.nodes.map(n => n.clone())
     gnc.connections = gn.connections.map(c => c.clone(gnc.getNode(c.from.id), gnc.getNode(c.to.id)))
     gnc.generateNetwork()
+    return gnc
   }
 
-  return constructor()
+  return init()
 }

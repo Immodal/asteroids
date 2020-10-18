@@ -22,14 +22,14 @@ Controls = () => {
     cs.generationLabel.html(population.generation)
     let drawInd = -1
     let gmCount = 0
-    for(let i=0; i<population.data.length; i++) {
-      if (!population.data[i].over) {
+    for(let i=0; i<population.members.length; i++) {
+      if (!population.members[i].over) {
         gmCount += 1
         if (drawInd<0) drawInd = i
       }
     }
     cs.drawIndLabel.html(drawInd)
-    cs.gameRemLabel.html(`${gmCount}/${population.data.length}`)
+    cs.gameRemLabel.html(`${gmCount}/${population.members.length}`)
   }
 
   return cs

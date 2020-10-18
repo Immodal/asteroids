@@ -1,15 +1,15 @@
-Population = (nInputs, nOutputs, size) => {
+Population = (size, nInputs, nOutputs) => {
   const pn = {}
 
   /**
    * Initialize all values for the object
    */
-  constructor = () => {
+  const init = () => {
     pn.STALENESS_THRESHOLD = 15
 
     pn.generation = 0
-    pn.members = Array.from(Array(size), () => pn.createMember(Genome(nInputs, nOutputs)))
     pn.innovationHistory = InnovationHistory(1000)
+    pn.members = Array.from(Array(size), () => pn.createMember(Genome(nInputs, nOutputs, pn.innovationHistory)))
     pn.species = []
     return pn
   }
@@ -19,7 +19,7 @@ Population = (nInputs, nOutputs, size) => {
    * >> Override this for other applications <<
    * @param {Genome} genome 
    */
-  pn.createMember = (genome) => Game(Genome(nInputs, nOutputs))
+  pn.createMember = (genome) => Game(genome)
 
   /**
    * Calculates the fitness of a given member
@@ -58,7 +58,7 @@ Population = (nInputs, nOutputs, size) => {
         }
       }
       // Otherwise make new species
-      if (!speciesFound) pn.species.push(Species(pn.calcFitness, pn.getGenome, m))
+      if (!speciesFound) pn.species.push(Species(pn.getGenome, pn.calcFitness, m))
     })
     // Sort members of each species, cull losers and update species stats
     pn.species
@@ -75,7 +75,7 @@ Population = (nInputs, nOutputs, size) => {
     const totalAvgFitness = pn.species.reduce((acc, s) => acc + s.avgFitness)
     const children = []
     pn.species.forEach(s => {
-      const nChildren = math.floor(s.averageFitness / totalAvgFitness * pn.species.length)
+      const nChildren = floor(s.averageFitness / totalAvgFitness * pn.species.length)
       for (let i=0; i<nChildren; i++) { // Add Children to array
         // Clone top performer first
         if (i==0) children.push(pn.getGenome(s.members[0][s.MEMBER_IND]).clone())
@@ -85,10 +85,12 @@ Population = (nInputs, nOutputs, size) => {
     // Fill remaining slots with children of top performer
     nFill = pn.members.length-children.length
     for (let i=0; i<nFill; i++) {
-      children.push(pn.species[0].getOffspring(pn.innovationHistory, pn.species[0].members[0][s.MEMBER_IND]))
+      const sp = pn.species[0]
+      children.push(sp.getOffspring(pn.innovationHistory, sp.members[0][sp.MEMBER_IND]))
     }
     pn.members = children.map(gn => pn.createMember(gn))
+    pn.generation += 1
   }
   
-  return constructor()
+  return init()
 }

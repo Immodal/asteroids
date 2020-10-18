@@ -7,7 +7,7 @@ InnovationEntry = (fromId, toId, innovation, genomeInnovations) => {
   /**
    * Initialize all values for the object
    */
-  constructor = () => {
+  const init = () => {
     ie.fromId = fromId
     ie.toId = toId
     ie.innovation = innovation
@@ -34,5 +34,5 @@ InnovationEntry = (fromId, toId, innovation, genomeInnovations) => {
     return false
   }
 
-  return constructor()
+  return init()
 }

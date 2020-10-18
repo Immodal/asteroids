@@ -6,15 +6,17 @@ const Utils = {
   isNumber: n => !isNaN(parseFloat(n)) && !isNaN(n - 0),
 
   /**
-   * Shuffles array in place
+   * Returns an Array of numbers 0 -> (n-1)
    */
-  shuffle: arr => {
-    let j, x;
-    for (let i = arr.length - 1; i > 0; i--) {
-      j = math.randomInt(0, i)
-      x = arr[i]
-      arr[i] = arr[j]
-      arr[j] = x
-    }
-  }
+  range: n => Array(n).fill().map((_, i) => i),
+
+  /**
+   * Get a random int between min (inclusive) and max (exclusive)
+   */
+  randomInt: (min, max) => floor(random(min, max)),
+
+  /**
+   * Get a random element from an array
+   */
+  pickRandom: arr => arr[Utils.randomInt(0, arr.length)]
 }

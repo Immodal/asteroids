@@ -1,7 +1,7 @@
 Species = (getGenome, calcFitness, member) => {
   const sp = {}
 
-  constructor = () => {
+  const init = () => {
     sp.compatibilityThreshold = 3
     sp.excessAndDisjointCoeff = 1
     sp.weightDiffCoeff = 0.5
@@ -19,7 +19,6 @@ Species = (getGenome, calcFitness, member) => {
     sp.calcFitness = calcFitness
     sp.addMember(member)
     sp.sortMembers()
-
     return sp
   }
 
@@ -39,8 +38,11 @@ Species = (getGenome, calcFitness, member) => {
    * @param {InnovationHistory} iHist
    */
   sp.getOffspring = (iHist, parent1=null) => {
-    if (parent1==null) parent1 = math.pickRandom(sp.members)
-    return sp.getGenome(parent1).clone().mutate(iHist)
+    if (parent1==null) parent1 = Utils.pickRandom(sp.members)
+
+    const os = sp.getGenome(parent1).clone()
+    os.mutate(iHist)
+    return os
     // TODO Crossover
     /*if (random(1) < 0.25) {
       baby = this.selectPlayer().clone();
@@ -55,7 +57,7 @@ Species = (getGenome, calcFitness, member) => {
   sp.sortMembers = () => {
     sp.members = sp.members
       // Calculate fitness adjusted for size of species
-      .map(tup => [[sp.calcFitness(tup[sp.MEMBER_IND])/sp.members.length], [tup[MEMBER_IND]]])
+      .map(tup => [sp.calcFitness(tup[sp.MEMBER_IND])/sp.members.length, tup[sp.MEMBER_IND]])
       .sort((a, b) => a[sp.FITNESS_IND] < b[sp.FITNESS_IND] ? 1 : a[sp.FITNESS_IND] > b[sp.FITNESS_IND] ? -1 : 0)
     sp.updateStats()
   }
@@ -68,10 +70,10 @@ Species = (getGenome, calcFitness, member) => {
       sp.staleness = 200 // Arbitrary
     } else {
       sp.avgFitness = sp.members.reduce((acc, tup) => acc+tup[sp.FITNESS_IND], 0)/sp.members.length
-      if (sp.members[0][sp.FITNESS_IND] > sp.bestFitness) { // New top dog
+      if (sp.members[0][sp.FITNESS_IND] >= sp.bestFitness) { // New top dog
         sp.bestFitness = sp.members[0][0]
         sp.staleness = 0
-        sp.rep = sp.getGenome(sp.members[0][MEMBER_IND]).clone()
+        sp.rep = sp.getGenome(sp.members[0][sp.MEMBER_IND]).clone()
       } else sp.staleness += 1
     }
   }
@@ -98,7 +100,7 @@ Species = (getGenome, calcFitness, member) => {
       for (let j=0; j<g2c.length; j++) {
         if (g1c[i].innovation == g2c[j].innovation) {
           matches += 1
-          totalWeightDiff += math.abs(g1c[i].weight - g2c[j].weight);
+          totalWeightDiff += abs(g1c[i].weight - g2c[j].weight);
           break
         }
       }
@@ -106,16 +108,16 @@ Species = (getGenome, calcFitness, member) => {
     // Non matches are either excess or disjoint
     const nExcessAndDisjoint = g1c.length + g2c.length - 2*matches
     const avgWeightDiff = matches==0 ? 1000 : totalWeightDiff/matches
-    const largeGenomeNormalizer = g1c.length < 20 && g2c.length < 20 ? 1 : math.max(g1c.length, g2c.length)
-    return (excessAndDisjointCoeff * nExcessAndDisjoint / largeGenomeNormalizer) + (weightDiffCoeff * avgWeightDiff)
+    const largeGenomeNormalizer = g1c.length < 20 && g2c.length < 20 ? 1 : max(g1c.length, g2c.length)
+    return (sp.excessAndDisjointCoeff * nExcessAndDisjoint / largeGenomeNormalizer) + (sp.weightDiffCoeff * avgWeightDiff)
   }
 
   /**
    * Remove bottom half of species
    */
   sp.cull = () => {
-    if (sp.members.length > 1) sp.members.length = math.ceil(sp.members.length/2)
+    if (sp.members.length > 1) sp.members.length = ceil(sp.members.length/2)
   }
 
-  return constructor()
+  return init()
 }
