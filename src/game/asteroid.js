@@ -48,6 +48,7 @@ Asteroid = (x, y, velocity=null, size=2) => {
     applyMatrix(cos(ast.rotation), sin(ast.rotation), -sin(ast.rotation), cos(ast.rotation), ast.pos.x, ast.pos.y)
     fill(0)
     stroke(255)
+    strokeWeight(1)
     circle(0, 0, ast.diameter)
     resetMatrix()
   }

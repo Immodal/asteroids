@@ -263,5 +263,56 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     return gnc
   }
 
+  gn.draw = (x, y, w, h) => {
+    // Split nodes into layers
+    const layered = []
+    let layer = -1
+    for (let i=0; i<gn.network.length; i++) {
+      if (gn.network[i].layer>layer) {
+        layer = gn.network[i].layer
+        layered.push([])
+      }
+      layered[layer].push(gn.network[i])
+    }
+
+    // Generate node positions and extract ids
+    const nodePos = []
+    const nodeIds = []
+    for (let i=0; i<layered.length; i++) {
+      const nx = x + w*0.05 + (w*0.9*i/(layered.length-1))
+      for (let j=0; j<layered[i].length; j++) {
+        const ny = y + h*0.05 + (h*0.9*j/(layered[i].length-1))
+        nodePos.push(createVector(nx, ny))
+        nodeIds.push(layered[i][j].id)
+      }
+    }
+
+    // Draw Connection Lines
+    stroke(255)
+    fill("rgba(0,0,0,0.5)")
+    rect(x, y, w, h)
+    for (let i=0; i<gn.connections.length; i++) {
+      const c = gn.connections[i]
+      if (!c.enabled || c.weight==0) stroke(50, 50, 50)
+      else if (c.weight<0) stroke(map(c.weight, -1, 0, 50, 255, true), 50, 50) 
+      else stroke(50, map(c.weight, 0, 1, 50, 255, true), 50) 
+      const from = nodePos[nodeIds.indexOf(c.from.id)]
+      const to = nodePos[nodeIds.indexOf(c.to.id)]
+      line(from.x, from.y, to.x, to.y)
+    }
+
+    // Draw Nodes
+    for (let i=0; i<nodePos.length; i++) {
+      fill(255)
+      stroke(0)
+      strokeWeight(1)
+      circle(nodePos[i].x, nodePos[i].y, 20, 20);
+      textSize(10)
+      fill(0)
+      textAlign(CENTER, CENTER)
+      text(nodeIds[i], nodePos[i].x, nodePos[i].y);
+    }
+  }
+
   return init()
 }

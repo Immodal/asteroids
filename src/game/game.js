@@ -63,6 +63,7 @@ Game = (ai, seed=null) => {
     gm.asteroids.forEach(o => o.draw())
     gm.ship.draw(true)
     gm.lasers.forEach(o => o.draw())
+    gm.ship.ai.draw(0, 0, 200, height)
   }
 
   /**
