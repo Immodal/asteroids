@@ -33,7 +33,7 @@ Population = (size, nInputs, nOutputs, seed=null) => {
     let score = member.score
     let hitRate = member.ship.shotCount>0 ? member.ship.shotHits / member.ship.shotCount : 0
     let lifespan = member.updateCount * 0.2 // Arbitrarily ratio
-    return hitRate * (score + lifespan)
+    return score + lifespan*0.05 + hitRate*100
   }
 
   /**

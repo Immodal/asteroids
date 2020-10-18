@@ -26,6 +26,11 @@ DemoBase = () => {
   }
 
   db.makeSliderGroup = (parent, title, sliderMin, sliderMax, sliderStart, sliderStep, sliderCallback=()=>{}) => {
+    const [slider, _] = db.makeSliderGroup2 = (parent, title, sliderMin, sliderMax, sliderStart, sliderStep, sliderCallback)
+    return slider
+  }
+
+  db.makeSliderGroup2 = (parent, title, sliderMin, sliderMax, sliderStart, sliderStep, sliderCallback=()=>{}) => {
     const titleObj = createP(title)
     titleObj.parent(parent)
     const slider = createSlider(sliderMin, sliderMax, sliderStart, sliderStep)
@@ -36,7 +41,7 @@ DemoBase = () => {
       label.html(slider.value())
       sliderCallback()
     })
-    return slider
+    return [slider, label]
   }
 
   db.makeInputGroup = (parent, title, value, callback=null) => {

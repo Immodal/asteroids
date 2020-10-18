@@ -1,7 +1,7 @@
 /**
  * Genome based on NEAT
  */
-Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
+Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=false) => {
   const gn = {}
 
   /**
@@ -29,13 +29,17 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
     // Connect all bias/inputs directly to all outputs
     // The bare minimum amount of connections with random weights and unique innovation numbers
     gn.connections = []
-    for(let i=0; i<gn.nInputs+1; i++) {
-      for(let j=0; j<gn.nOutputs; j++) {
-        const innovation = innoHist.add(gn.nodes[i].id, gn.nodes[gn.nInputs+1+j], gn.getInnovations())
-        const connection = ConnectionGene(gn.nodes[i], gn.nodes[gn.nInputs+1+j], random(-1, 1), innovation)
-        gn.connections.push(connection)
+    // Fully connect, otherwise add a random mutation to start off
+    if (fullyConnect) {
+      for(let i=0; i<gn.nInputs+1; i++) {
+        for(let j=0; j<gn.nOutputs; j++) {
+          const innovation = innoHist.add(gn.nodes[i].id, gn.nodes[gn.nInputs+1+j], gn.getInnovations())
+          const connection = ConnectionGene(gn.nodes[i], gn.nodes[gn.nInputs+1+j], random(-1, 1), innovation)
+          gn.connections.push(connection)
+        }
       }
-    }
+    } else gn.mutate(innoHist)
+
     // Init network list
     gn.generateNetwork()
     return gn

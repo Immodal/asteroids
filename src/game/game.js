@@ -72,7 +72,7 @@ Game = (ai, seed=null) => {
     stroke(0)
     fill(255)
     textSize(32);
-    text(gm.score, 10, 30);
+    text(gm.score, width-60, 30);
   }
 
   /**

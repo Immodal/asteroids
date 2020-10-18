@@ -1,7 +1,7 @@
 Controls = () => {
   const cs = DemoBase()
 
-  cs.init = (skipGenCallback) => {
+  const init = () => {
     cs.viewDiv = cs.makeDiv("#main", "")
 
     cs.infoDiv = cs.makeDiv(cs.viewDiv, "Information")
@@ -10,12 +10,16 @@ Controls = () => {
     cs.gameRemLabel = cs.makeDataLabel(cs.infoDiv, "Games remaining: ", "0")
 
     cs.ctrlDiv = cs.makeDiv(cs.viewDiv, "Controls")
-    cs.skipGenInput = cs.makeInputGroup(cs.ctrlDiv, "Skip Generations [1, 20]: ", 1, cs.updateSkipGenInput(skipGenCallback))
+    const [slider, label] = cs.makeSliderGroup2(cs.ctrlDiv, "Skip Generations: ", 0, 100, 0, 1)
+    cs.skipGenSlider = slider
+    cs.skipGenLabel = label
+    return cs
   }
 
-  cs.updateSkipGenInput = skipGenCallback => () => {
-    cs.updateNumberInput(1, 20, 1, true, false)(cs.skipGenInput)
-    skipGenCallback(parseInt(cs.skipGenInput.value()))
+  cs.getSkips = () => cs.skipGenSlider.value()
+  cs.decSkips = () => {
+    cs.skipGenSlider.value(cs.getSkips()>0 ? cs.getSkips()-1 : 0)
+    cs.skipGenLabel.html(cs.skipGenSlider.value())
   }
 
   cs.updateInfo = population => {
@@ -32,5 +36,5 @@ Controls = () => {
     cs.gameRemLabel.html(`${gmCount}/${population.members.length}`)
   }
 
-  return cs
+  return init()
 }

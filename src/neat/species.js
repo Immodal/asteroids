@@ -2,7 +2,7 @@ Species = (getGenome, calcFitness, member) => {
   const sp = {}
 
   const init = () => {
-    sp.compatibilityThreshold = 3
+    sp.compatibilityThreshold = 1
     sp.excessAndDisjointCoeff = 1
     sp.weightDiffCoeff = 0.5
 
