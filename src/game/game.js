@@ -1,5 +1,24 @@
-Game = ai => {
+Game = (ai, seed=null) => {
   const gm = {}
+
+  /**
+   * Initialize values
+   */
+  const init = () => {
+    // Set seed used for generating initial conditions.
+    // There shouldn't be any other randomness left in the game.
+    gm.seed = seed
+    randomSeed(gm.seed)
+    
+    gm.nAsteroids = 20
+    gm.score = 0
+    gm.over = false
+    gm.ship = Ship(width/2, height/2, 45, ai)
+    gm.asteroids = Array.from(Array(gm.nAsteroids), (_, i) => gm.spawnAsteroid(i==0))
+    gm.lasers = []
+    gm.updateCount = 0
+    return gm
+  }
 
   /**
    * Updates all game logic
@@ -28,13 +47,10 @@ Game = ai => {
         }
       }
 
-      gm.asteroids.forEach(o => {
-        if (o.collides(gm.ship)) {
-          gm.over = true
-          gm.stopTime = gm.updateCount
-        }
-      })
-      if (gm.asteroids.length<gm.nAsteroids) gm.asteroids.push(gm.spawnAsteroid())
+      if (gm.asteroids.length==0) gm.over = true
+      else gm.asteroids.forEach(o => { if (o.collides(gm.ship)) gm.over = true })
+
+      //if (gm.asteroids.length<gm.nAsteroids) gm.asteroids.push(gm.spawnAsteroid())
       gm.ship.scan(gm.asteroids)
     }
   }
@@ -74,28 +90,19 @@ Game = ai => {
   /**
    * Spawn asteroid at the edge of the screen to prevent spawning on top of player
    */
-  gm.spawnAsteroid = (anywhere=true) => {
-    const left = () => Asteroid(0, math.random(0, height))
-    const right = () => Asteroid(width, math.random(0, height))
-    const top = () => Asteroid(math.random(0, width), 0)
-    const bottom = () => Asteroid(math.random(0, width), height)
-    const spawn = () => anywhere ? 
-      Asteroid(math.random(0, width), math.random(0, height)) : 
-      math.pickRandom([left, right, top, bottom])()
-
+  gm.spawnAsteroid = (aimAtShip=false) => {
+    const spawn = () => {
+      return Asteroid(random(0, width), random(0, height))
+      // TODO Fix this
+      //const velocity = aimAtShip ? createVector(gm.ship.pos.x, gm.ship.pos.y) : null
+      //return Asteroid(random(0, width), random(0, height), velocity)
+    }
     let ast = spawn()
-    while (ast.pos.dist(gm.ship.pos)<ast.diameter*1.5) ast = spawn()
+    while (ast.pos.dist(gm.ship.pos)<ast.diameter*1.5) {
+      ast = spawn()
+    }
     return ast
   }
 
-  gm.nAsteroids = 20
-  gm.score = 0
-  gm.over = false
-  gm.stopTime = 0
-  gm.ship = Ship(width/2, height/2, 45, ai)
-  gm.asteroids = Array.from(Array(gm.nAsteroids), gm.spawnAsteroid)
-  gm.lasers = []
-  gm.updateCount = 0
-
-  return gm
+  return init()
 }

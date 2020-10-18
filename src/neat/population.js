@@ -1,4 +1,4 @@
-Population = (size, nInputs, nOutputs) => {
+Population = (size, nInputs, nOutputs, seed=null) => {
   const pn = {}
 
   /**
@@ -6,10 +6,12 @@ Population = (size, nInputs, nOutputs) => {
    */
   const init = () => {
     pn.STALENESS_THRESHOLD = 15
+    pn.MAGIC_NO = 987654321987654
 
     pn.generation = 0
     pn.innovationHistory = InnovationHistory(1000)
-    pn.members = Array.from(Array(size), () => pn.createMember(Genome(nInputs, nOutputs, pn.innovationHistory)))
+    pn.memberSeed = random(pn.MAGIC_NO)
+    pn.members = Array.from(Array(size), () => pn.createMember(Genome(nInputs, nOutputs, pn.innovationHistory), pn.memberSeed))
     pn.species = []
     return pn
   }
@@ -18,8 +20,9 @@ Population = (size, nInputs, nOutputs) => {
    * Takes a genome and creates a new Member
    * >> Override this for other applications <<
    * @param {Genome} genome 
+   * @param {Number} seed Random Seed
    */
-  pn.createMember = (genome) => Game(genome)
+  pn.createMember = (genome, seed) => Game(genome, seed)
 
   /**
    * Calculates the fitness of a given member
@@ -44,6 +47,7 @@ Population = (size, nInputs, nOutputs) => {
    * Generate new members from the result of this generation
    */
   pn.naturalSelection = () => {
+    randomSeed(null) // To prevent accidental patterns from emerging
     // Clear species of their old members
     pn.species.forEach(s => s.members = [])
     // Sort current members into their species
@@ -68,7 +72,7 @@ Population = (size, nInputs, nOutputs) => {
         s.sortMembers()
       })
     // Sort species by the fitness of their top member, remove stale species
-    pn.species
+    pn.species = pn.species
       .sort((a, b) => a.bestFitness>b.bestFitness ? -1 : a.bestFitness<b.bestFitness ? 1 : 0)
       .filter((s, i) => i<2 || s.staleness<pn.STALENESS_THRESHOLD)
     // Reproduction
@@ -88,7 +92,9 @@ Population = (size, nInputs, nOutputs) => {
       const sp = pn.species[0]
       children.push(sp.getOffspring(pn.innovationHistory, sp.members[0][sp.MEMBER_IND]))
     }
-    pn.members = children.map(gn => pn.createMember(gn))
+
+    pn.memberSeed = random(pn.MAGIC_NO)
+    pn.members = children.map(gn => pn.createMember(gn, pn.memberSeed))
     pn.generation += 1
   }
   

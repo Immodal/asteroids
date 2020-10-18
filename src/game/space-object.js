@@ -11,6 +11,7 @@ SpaceObject = (x, y, diameter, rotation, rotationRate, velocity, maxSpeed, accel
 
   obj.velocity = velocity
   obj.maxSpeed = maxSpeed
+  obj.velocity.limit(maxSpeed)
   obj.acceleration = acceleration
   obj.accelerated = false
 

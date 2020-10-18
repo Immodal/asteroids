@@ -1,9 +1,10 @@
 let controls, games, canvas;
+let currentGame = 0;
 const N_SENSOR_LINES = 32
 const N_SHIP_DATA_INPUTS = 3
 const N_INPUTS = N_SENSOR_LINES + N_SHIP_DATA_INPUTS
 const N_OUTPUTS = 4
-const POP_SIZE = 10
+const POP_SIZE = 50
 
 function setup() {
   canvas = createCanvas(1000, 600)
@@ -20,21 +21,15 @@ function setup() {
 function draw() {
   background(0)
   //game.actions()
+  const game = games.members[currentGame]
+  game.update()
+  game.draw()
 
-  let allComplete = true
-  let drawn = false
-  games.members.forEach((g,i) => {
-    if (!g.over) {
-      allComplete = false
-      g.update()
-      if (!drawn) {
-        drawn = true
-        g.draw()
-      }
-    }
-  })
-
-  if(allComplete) games.naturalSelection()
+  if(game.over) currentGame += 1
+  if(currentGame == games.members.length) {
+    games.naturalSelection()
+    currentGame = 0
+  }
   controls.updateInfo(games)
 }
 
@@ -46,17 +41,14 @@ function skipForward(nGen) {
   console.log(`Skipping ${nGen} Generations starting at ${games.generation}. Time: ${new Date().toUTCString()}`)
   const startGen = games.generation
   while (games.generation<startGen + nGen) {
-    let allComplete = true
-    games.members.forEach(g => {
-      if (!g.over) {
-        allComplete = false
-        g.update()
-      }
-    })
-
-    if(allComplete) {
+    const game = games.members[currentGame]
+    game.update()
+  
+    if(game.over) currentGame += 1
+    if(currentGame == games.members.length) {
       console.log(`Generation ${games.generation} Complete. ${(startGen + nGen) - games.generation} Remaining. Time: ${new Date().toUTCString()}`)
       games.naturalSelection()
+      currentGame = 0
       console.log(`Starting Generation ${games.generation}. Time: ${new Date().toUTCString()}`)
     }
   }
