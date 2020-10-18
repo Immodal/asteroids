@@ -10,6 +10,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
   constructor = () => {
     // If not all params are supplied, the constructor will assume this is used for cloning and not run
     if (nInputs==null || nOutputs==null || innoHist==null) return gn
+    gn.weightMutationRate = 0.8
+    gn.newConnectionRate = 0.05
+    gn.newNodeRate = 0.01
 
     gn.nInputs = nInputs
     gn.nOutputs = nOutputs
@@ -62,10 +65,6 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
    * @param {InnovationHistory} iHist 
    */
   gn.mutate = (iHist) => {
-    const weightMutationRate = 0.8
-    const newConnectionRate = 0.05
-    const newNodeRate = 0.01
-
     if (gn.connections.length == 0) gn.addConnection(iHist)
     if (math.random()<weightMutationRate) gn.connections.forEach(c => c.mutate())
     if (math.random()<newConnectionRate) gn.addConnection(iHist)
@@ -194,6 +193,10 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null) => {
    */
   gn.clone = () => {
     const gnc = Genome()
+    gnc.weightMutationRate = gn.weightMutationRate
+    gnc.newConnectionRate = gn.newConnectionRate
+    gnc.newNodeRate = gn.newNodeRate
+
     gnc.nInputs = gn.nInputs
     gnc.nOutputs = gn.nOutputs
     gnc.nextNodeNum = gn.nextNodeNum
