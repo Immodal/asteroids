@@ -4,7 +4,7 @@ const N_SENSOR_LINES = 32
 const N_SHIP_DATA_INPUTS = 5
 const N_INPUTS = N_SENSOR_LINES + N_SHIP_DATA_INPUTS
 const N_OUTPUTS = 4
-const POP_SIZE = 10
+const POP_SIZE = 100
 
 function setup() {
   canvas = createCanvas(1000, 600)

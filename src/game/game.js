@@ -13,7 +13,7 @@ Game = (ai, seed=null) => {
     gm.nAsteroids = 20
     gm.score = 0
     gm.over = false
-    gm.ship = Ship(width/2, height/2, 45, ai)
+    gm.ship = Ship(width/2, height/2, 15, ai)
     gm.asteroids = Array.from(Array(gm.nAsteroids-1), (_, i) => gm.spawnAsteroid(i==0))
     gm.asteroids.push(Asteroid(400, height/2, createVector(100, 0)))
     gm.lasers = []
@@ -63,17 +63,6 @@ Game = (ai, seed=null) => {
     gm.asteroids.forEach(o => o.draw())
     gm.ship.draw(true)
     gm.lasers.forEach(o => o.draw())
-    gm.drawScore()
-  }
-
-  /**
-   * Draw score for current game on the Canvas
-   */
-  gm.drawScore = () => {
-    stroke(0)
-    fill(255)
-    textSize(32);
-    text(gm.score, width-60, 30);
   }
 
   /**

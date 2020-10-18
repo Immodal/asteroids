@@ -98,9 +98,12 @@ Species = (getGenome, calcFitness, member) => {
   /**
    * Check if a Genome is similar enough to the representative to be in this species
    * @param {Genome} other
+   * @param {Boolean} retDist Instead of returning a boolean, return an Array [iss, dist]
    */
-  sp.isSameSpecies = (other) => {
-    return sp.dist(other, sp.rep) < sp.compatibilityThreshold // Compatibility Threshold
+  sp.isSameSpecies = (other, retDist=false) => {
+    const dist = sp.dist(other, sp.rep)
+    const iss = dist < sp.compatibilityThreshold
+    return retDist ? [iss, dist] : iss
   }
 
   /**

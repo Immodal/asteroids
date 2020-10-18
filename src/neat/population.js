@@ -12,6 +12,9 @@ Population = (size, nInputs, nOutputs, seed=null) => {
     pn.innovationHistory = InnovationHistory(1000)
     pn.memberSeed = random(pn.MAGIC_NO)
     pn.members = Array.from(Array(size), () => pn.createMember(Genome(nInputs, nOutputs, pn.innovationHistory), pn.memberSeed))
+    pn.avgScores = [0]
+    pn.topScores = [0]
+    pn.avgGenomeDist = [0]
     pn.species = []
     return pn
   }
@@ -32,7 +35,7 @@ Population = (size, nInputs, nOutputs, seed=null) => {
   pn.calcFitness = (member) => {
     let score = member.score
     let hitRate = member.ship.shotCount>0 ? member.ship.shotHits / member.ship.shotCount : 0
-    let lifespan = member.updateCount * 0.2 // Arbitrarily ratio
+    let lifespan = member.updateCount // Arbitrarily ratio
     return score + lifespan*0.05 + hitRate*100
   }
 
@@ -48,14 +51,19 @@ Population = (size, nInputs, nOutputs, seed=null) => {
    */
   pn.naturalSelection = () => {
     randomSeed(null) // To prevent accidental patterns from emerging
+    pn.avgScores.push(pn.members.reduce((acc, m) => acc + m.score, 0)/pn.members.length)
+    pn.topScores.push(pn.members.reduce((acc, m) => acc > m.score ? acc : m.score, 0))
     // Clear species of their old members
     pn.species.forEach(s => s.members = [])
     // Sort current members into their species
+    const dists = []
     pn.members.forEach(m => {
       let speciesFound = false
       // Check existing species
       for(let i=0; i<pn.species.length; i++) {
-        if(pn.species[i].isSameSpecies(pn.getGenome(m))) {
+        const [iss, dist] = pn.species[i].isSameSpecies(pn.getGenome(m), true)
+        dists.push(dist)
+        if(iss) {
           pn.species[i].addMember(m)
           speciesFound = true
           break
@@ -64,6 +72,7 @@ Population = (size, nInputs, nOutputs, seed=null) => {
       // Otherwise make new species
       if (!speciesFound) pn.species.push(Species(pn.getGenome, pn.calcFitness, m))
     })
+    pn.avgGenomeDist.push(dists.reduce((acc, d) => acc + d, 0)/dists.length)
     // Sort members of each species, cull losers and update species stats
     pn.species
       .forEach(s => {
