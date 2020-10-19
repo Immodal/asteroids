@@ -1,4 +1,4 @@
-Population = (size, nInputs, nOutputs) => {
+Population = (speciesSize, nInputs, nOutputs) => {
   const pn = {}
 
   /**
@@ -9,9 +9,10 @@ Population = (size, nInputs, nOutputs) => {
     pn.MAGIC_NO = 987654321987654
 
     pn.generation = 0
+    pn.speciesSize = speciesSize
     pn.innovationHistory = InnovationHistory(1000)
     pn.memberSeed = random(pn.MAGIC_NO)
-    pn.members = Array.from(Array(size), () => pn.createMember(Genome(nInputs, nOutputs, pn.innovationHistory), pn.memberSeed))
+    pn.members = Array.from(Array(pn.speciesSize), () => pn.createMember(Genome(nInputs, nOutputs, pn.innovationHistory), pn.memberSeed))
     pn.avgScores = [0]
     pn.topScores = [0]
     pn.avgGenomeDist = [0]
@@ -85,24 +86,15 @@ Population = (size, nInputs, nOutputs) => {
       .sort((a, b) => a.bestFitness>b.bestFitness ? -1 : a.bestFitness<b.bestFitness ? 1 : 0)
       .filter((s, i) => (i==0 && s.members.length>0) || s.staleness<pn.STALENESS_THRESHOLD)
     // Reproduction
-    const totalAvgFitness = pn.species.reduce((acc, s) => acc + s.avgFitness)
     const children = []
     pn.species.forEach(s => {
-      const nChildren = floor(s.averageFitness / totalAvgFitness * pn.species.length)
-      for (let i=0; i<nChildren; i++) { // Add Children to array
+      // TODO Gradually reduce size based on staleness instead?
+      for (let i=0; i<pn.speciesSize; i++) { // Add Children to array
         // Clone top performer first
         if (i==0) children.push(pn.getGenome(s.members[0][s.MEMBER_IND]).clone())
         else children.push(s.getOffspring(pn.innovationHistory));
       }
     })
-    // Fill remaining slots with children of top performer
-    nFill = pn.members.length-children.length
-    for (let i=0; i<nFill; i++) {
-      const sp = pn.species[0]
-      const c = sp.getGenome(sp.members[0][sp.MEMBER_IND]).clone()
-      c.mutate(pn.innovationHistory)
-      children.push(c)
-    }
 
     pn.memberSeed = random(pn.MAGIC_NO)
     pn.members = children.map(gn => pn.createMember(gn, pn.memberSeed))

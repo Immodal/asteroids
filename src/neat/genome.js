@@ -11,8 +11,8 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     // If not all params are supplied, the constructor will assume this is used for cloning and not run
     if (nInputs==null || nOutputs==null || innoHist==null) return gn
     gn.weightMutationRate = 0.8
-    gn.newConnectionRate = 0.1
-    gn.newNodeRate = 0.05
+    gn.newConnectionRate = 0.05
+    gn.newNodeRate = 0.01
 
     gn.nInputs = nInputs
     gn.nOutputs = nOutputs

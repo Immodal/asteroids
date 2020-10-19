@@ -2,7 +2,7 @@ Species = (getGenome, calcFitness, member) => {
   const sp = {}
 
   const init = () => {
-    sp.compatibilityThreshold = 3
+    sp.compatibilityThreshold = 0.3
     sp.excessAndDisjointCoeff = 1
     sp.weightDiffCoeff = 0.5
 
@@ -40,7 +40,7 @@ Species = (getGenome, calcFitness, member) => {
   sp.getOffspring = (iHist) => {
     let child = null
     if (random()<0.25) { // 25% Chance to be a clone
-      child = sp.getGenome(sp.members[sp.getRandomMemberInd()]).clone()
+      child = sp.getGenome(sp.members[sp.getRandomMemberInd()][sp.MEMBER_IND]).clone()
     } else { // 75% chance of crossover
       let p1Tup = sp.members[sp.getRandomMemberInd()]
       let p2Tup = sp.members[sp.getRandomMemberInd()]
