@@ -8,13 +8,13 @@ Ship = (x, y, diameter, ai=null) => {
   ship.bowProp = 0.7 // Proportion of diameter
   ship.aftProp = 1 - ship.bowProp
 
-  ship.weaponCd = 200
+  ship.weaponCd = 15
   ship.weaponLastFired = 0
   ship.shotCount = 0
   ship.shotHits = 0
 
   ship.ai = ai
-  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.nInputs-5) // - Ship data inputs
+  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.nInputs-7) // - Ship data inputs
 
   ship.takeActions = (currentTime, lasers) => {
     if (ship.ai!=null) {
@@ -22,7 +22,8 @@ Ship = (x, y, diameter, ai=null) => {
       data.push(ship.rotation/TWO_PI)
       data.push(ship.pos.x/width)
       data.push(ship.pos.y/height)
-      data.push(ship.velocity.mag()/ship.maxSpeed)
+      data.push(ship.velocity.x/ship.maxSpeed)
+      data.push(ship.velocity.y/ship.maxSpeed)
       data.push(ship.rotation/TWO_PI)
       let actions = ship.ai.feedForward(data)
       

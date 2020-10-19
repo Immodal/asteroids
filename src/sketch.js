@@ -1,7 +1,7 @@
 let controls, games, canvas;
 let currentGame = 0
 const N_SENSOR_LINES = 16
-const N_SHIP_DATA_INPUTS = 5
+const N_SHIP_DATA_INPUTS = 7
 const N_INPUTS = N_SENSOR_LINES + N_SHIP_DATA_INPUTS
 const N_OUTPUTS = 4
 const POP_SIZE = 20

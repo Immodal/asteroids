@@ -74,7 +74,7 @@ Game = (ai, seed=null) => {
       if (keyIsDown(38) || keyIsDown(87)) gm.ship.accelerate() // up
       if (keyIsDown(37) || keyIsDown(65)) gm.ship.rotate(-1) // left
       if (keyIsDown(39) || keyIsDown(68)) gm.ship.rotate(1) // right
-      if (keyIsDown(32) && gm.ship.shoot()) gm.lasers.push(Laser(gm.updateCount, gm.ship)) // space
+      if (keyIsDown(32) && gm.ship.shoot(gm.updateCount)) gm.lasers.push(Laser(gm.updateCount, gm.ship)) // space
     }
   }
 
