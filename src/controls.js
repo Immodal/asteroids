@@ -1,7 +1,9 @@
-Controls = () => {
+Controls = (fitnessChart, scoreChart) => {
   const cs = DemoBase()
 
   const init = () => {
+    cs.fitnessChart = fitnessChart
+    cs.scoreChart = scoreChart
     cs.viewDiv = cs.makeDiv("#main", "")
 
     cs.infoDiv = cs.makeDiv(cs.viewDiv, "Information")
@@ -9,8 +11,6 @@ Controls = () => {
     cs.nSpeciesLabel = cs.makeDataLabel(cs.infoDiv, "N Species: ", "0")
     cs.compatThresholdLabel = cs.makeDataLabel(cs.infoDiv, "Compatibility Threshold: ", "3")
     cs.avgGenomeDistLabel = cs.makeDataLabel(cs.infoDiv, "Avg Genome Dist: ", "0")
-    cs.lastGenAvgScoreLabel = cs.makeDataLabel(cs.infoDiv, "Last Gen Avg Score: ", "0")
-    cs.lastGenTopScoreLabel = cs.makeDataLabel(cs.infoDiv, "Last Gen Top Score: ", "0")
     cs.gameRemLabel = cs.makeDataLabel(cs.infoDiv, "Current Game: ", "0")
     cs.scoreLabel = cs.makeDataLabel(cs.infoDiv, "Score: ", "0")
 
@@ -28,14 +28,35 @@ Controls = () => {
   }
 
   cs.updateInfo = (currentGame, population) => {
-    cs.generationLabel.html(population.generation)
+    cs.generationLabel.html(population.generations[population.generations.length-1])
     cs.nSpeciesLabel.html(population.species.length)
     cs.compatThresholdLabel.html(population.compatibilityThreshold.toFixed(4))
     cs.avgGenomeDistLabel.html(population.avgGenomeDist[population.avgGenomeDist.length-1].toFixed(4))
-    cs.lastGenAvgScoreLabel.html(population.avgScores[population.avgScores.length-1].toFixed(4))
-    cs.lastGenTopScoreLabel.html(population.topScores[population.topScores.length-1])
     cs.gameRemLabel.html(`${currentGame}/${population.members.length}`)
     cs.scoreLabel.html(population.members[currentGame].score)
+  }
+
+  cs.updateChart = (population) => {
+    const _update = (ch, data, i) => {
+      if (data.length>100) {
+        cs.fitnessChart
+        ch.data.datasets[i].data = data.slice(data.length-100)
+      }
+    }
+    
+    _update(cs.fitnessChart, population.topFitnesses, 0)
+    _update(cs.fitnessChart, population.avgFitnesses, 1)
+    _update(cs.scoreChart, population.topScores, 0)
+    _update(cs.scoreChart, population.avgScores, 1)
+
+    if (population.generations.length>100) {
+      const gens = population.generations.slice(population.generations.length-100)
+      cs.fitnessChart.data.labels = gens
+      cs.scoreChart.data.labels = gens
+    }
+
+    cs.fitnessChart.update()
+    cs.scoreChart.update()
   }
 
   return init()

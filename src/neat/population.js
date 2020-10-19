@@ -11,27 +11,28 @@ Population = (speciesSize, nInputs, nOutputs) => {
   const init = () => {
     // Upper Limit for generating random seeds for Games
     pn.MAGIC_NO = 987654321987654
+    pn.MEMBER_SIZE_HARD_LIMIT = 999999999
     // Number of generations only a single species exists before 
     // decrementing pn.compatibilityThreshold to increase biodiversity
+    pn.autoAdjCompatThreshold = true
     pn.DOMINATION_LIMIT = 2
-    pn.DOMINATING_SPEC_LOW = 3
+    pn.DOMINATING_SPEC_LOW = ceil(speciesSize/10)
     pn.DOMINATION_ADJ_STEP = 0.1
     pn.dominationCounter = 0
     // Limit number of species
-    pn.SPECIES_LIMIT = ceil(speciesSize/2)
+    pn.SPECIES_LIMIT = speciesSize
     pn.SPECIES_ADJ_STEP = 0.1
     // Species Constants
-    pn.STALENESS_THRESHOLD = 5
+    pn.STALENESS_THRESHOLD = 15
     pn.compatibilityThreshold = 3
     pn.EXCESS_AND_DISJOJINT_COEFF = 1
     pn.WEIGHT_DIFF_COEFF = 0.5
     // Genome Constants
     pn.INITIAL_FULLY_CONNECT = true
     pn.WEIGHT_MUTATION_RATE = 0.8
-    pn.NEW_CONNECTION_RATE = 0.05
-    pn.NEW_NODE_RATE = 0.01
+    pn.NEW_CONNECTION_RATE = 0.1
+    pn.NEW_NODE_RATE = 0.1
 
-    pn.generation = 0
     pn.speciesSize = speciesSize
     pn.innovationHistory = InnovationHistory(1000)
     pn.memberSeed = random(pn.MAGIC_NO)
@@ -44,7 +45,10 @@ Population = (speciesSize, nInputs, nOutputs) => {
           pn.NEW_CONNECTION_RATE, 
           pn.NEW_NODE_RATE), 
         pn.memberSeed))
+    // TODO Make metadata  storage better
+    pn.generations = [0]
     pn.topFitnesses = [0]
+    pn.avgFitnesses = [0]
     pn.avgScores = [0]
     pn.topScores = [0]
     pn.avgGenomeDist = [0]
@@ -122,26 +126,48 @@ Population = (speciesSize, nInputs, nOutputs) => {
       .filter(s => s.members.length>0) 
       .sort((a, b) => a.bestFitness>b.bestFitness ? -1 : a.bestFitness<b.bestFitness ? 1 : 0)
       .filter((s, i) => i==0 || s.staleness<pn.STALENESS_THRESHOLD)
+    // If there are too many species, there will be a mass extinction
+    if (pn.species.length>pn.SPECIES_LIMIT*2) pn.species.length = pn.SPECIES_LIMIT*2
     // Reproduction
     const children = []
-    pn.species.forEach(s => {
+    for (let i=0; i<pn.species.length; i++) {
+      const s = pn.species[i]
       // TODO Gradually reduce size based on staleness instead?
       for (let i=0; i<pn.speciesSize; i++) { // Add Children to array
         // Clone top performer first
         if (i==0) children.push(pn.getGenome(s.members[0][s.MEMBER_IND]).clone())
-        else children.push(s.getOffspring(pn.innovationHistory));
+        else if (random()<0.001) { // Crossover with another species
+          const topCurrent = s.members[0]
+          const s2 = Utils.pickRandom(pn.species)
+          const topOther = s2.members[0]
+          const g1 = pn.getGenome(topCurrent[s.MEMBER_IND])
+          const g2 = pn.getGenome(topOther[s2.MEMBER_IND])
+          if (topCurrent[s.FITNESS_IND]>topOther[s2.FITNESS_IND]) {
+            children.push(g1.crossover(g2))
+          } else {
+            children.push(g2.crossover(g1))
+          }
+          
+        } else children.push(s.getOffspring(pn.innovationHistory))
       }
-    })
+      if (children.length > pn.MEMBER_SIZE_HARD_LIMIT) {
+        children.length = pn.MEMBER_SIZE_HARD_LIMIT
+        break
+      }
+    }
 
     // Adjust compatibility threshold
-    pn._checkDominationLimit()
-    pn._checkSpeciesLimit()
+    if (pn.autoAdjCompatThreshold) {
+      pn._checkDominationLimit()
+      pn._checkSpeciesLimit()
+    }
 
     pn.topFitnesses.push(pn.species[0].members[0][pn.species[0].FITNESS_IND])
+    pn.avgFitnesses.push(pn.species.reduce((acc, s) => acc + s.avgFitness, 0)/pn.species.length)
 
     pn.memberSeed = random(pn.MAGIC_NO)
     pn.members = children.map(gn => pn.createMember(gn, pn.memberSeed))
-    pn.generation += 1
+    pn.generations.push(pn.generations[pn.generations.length-1]+1)
   }
 
   /**

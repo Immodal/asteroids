@@ -2,7 +2,7 @@
  * Genome based on NEAT
  */
 Genome = (nInputs=null, nOutputs=null, innoHist=null, 
-    initiallyFullyConnect=true, weightMutationRate=0.8, newConnectionRate=0.05, newNodeRate=0.01) => {
+    initiallyFullyConnect=true, weightMutationRate=0.8, newConnectionRate=0.05, newNodeRate=0.03) => {
   const gn = {}
 
   /**

@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="index.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/7.2.0/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
     <script src="src/utils.js"></script>
     <script src="src/demo-base.js"></script>
     <script src="src/neat/connection-gene.js"></script>
@@ -25,8 +26,21 @@
   <body>
     <h1>Asteroids</h1>
     <p>Link to repo: <a href="https://github.com/Immodal/asteroids">Immodal/asteroids</a>, check out the readme for more info.</p>
-    <div id="main" style="display: flex; flex-wrap: wrap; justify-content:flex-start;">
-      <div id="cv" style="margin-bottom: 1em"></div>
+    <div id="content" class="contentDiv">
+      <div id="main" class="contentDiv">
+        <div id="cv" style="margin-bottom: 1em"></div>
+      </div>
+      <div id="charting" class="contentDiv">
+        <div class="chart-container" style="position: relative; height:225px; width:500px">
+          <h3 class="title">Fitness</h3>
+          <canvas id="chartcv1"></canvas>
+        </div>
+        <div class="chart-container" style="position: relative; height:225px; width:500px">
+          <h3 class="title">Score</h3>
+          <canvas id="chartcv2"></canvas>
+        </div>
+      </div>
     </div>
+
   </body>
 </html>

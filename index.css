@@ -6,3 +6,9 @@
 .title {
   text-decoration: underline
 }
+
+.contentDiv {
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content:flex-start;
+}
