@@ -1,4 +1,4 @@
-Population = (size, nInputs, nOutputs, seed=null) => {
+Population = (size, nInputs, nOutputs) => {
   const pn = {}
 
   /**

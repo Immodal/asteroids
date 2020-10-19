@@ -11,8 +11,8 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     // If not all params are supplied, the constructor will assume this is used for cloning and not run
     if (nInputs==null || nOutputs==null || innoHist==null) return gn
     gn.weightMutationRate = 0.8
-    gn.newConnectionRate = 0.05
-    gn.newNodeRate = 0.01
+    gn.newConnectionRate = 0.1
+    gn.newNodeRate = 0.05
 
     gn.nInputs = nInputs
     gn.nOutputs = nOutputs
@@ -117,10 +117,11 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
    * @param {InnovationHistory} iHist 
    */
   gn.mutate = (iHist) => {
+    const rand = random()
     if (gn.connections.length == 0) gn.addConnection(iHist)
-    if (random()<gn.weightMutationRate) gn.connections.forEach(c => c.mutate())
-    if (random()<gn.newConnectionRate) gn.addConnection(iHist)
-    if (random()<gn.newNodeRate) gn.addNode(iHist)
+    if (rand<gn.weightMutationRate) gn.connections.forEach(c => c.mutate())
+    if (rand<gn.newConnectionRate) gn.addConnection(iHist)
+    if (rand<gn.newNodeRate) gn.addNode(iHist)
   }
 
   /**
@@ -136,18 +137,21 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
   /**
    * Insert a new Node between two random nodes with an existing connection
    * @param {InnovationHistory} iHist 
+   * @param {Boolean} fullyConnectedBias
    */
-  gn.addNode = (iHist) => {
+  gn.addNode = (iHist, fullyConnectedBias=true) => {
     // Pick a random connection excluding from Bias nodes
     let connection = Utils.pickRandom(gn.connections)
-    while(connection.from == gn.nodes[gn.BIAS_IND]) {
-      connection = Utils.pickRandom(gn.connections)
+    if (fullyConnectedBias) {
+      while(connection.from == gn.nodes[gn.BIAS_IND]) {
+        connection = Utils.pickRandom(gn.connections)
+      }
     }
+
     // Disable node
     connection.enabled = false
     // Create new node to insert
     const newNode = NodeGene(gn.nextNodeNum++, connection.from.layer+1)
-    gn.nodes.push(newNode)
     // Connect to newNode with weight of 1
     const innovation1 = iHist.add(connection.from.id, newNode.id)
     gn.connections.push(ConnectionGene(connection.from, newNode, 1, innovation1))
@@ -155,14 +159,17 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     const innovation2 = iHist.add(newNode.id, connection.to.id)
     gn.connections.push(ConnectionGene(newNode, connection.to, connection.weight, innovation2))
     // Connect bias node to newNode with weight of 0
-    const innovation3 = iHist.add(gn.nodes[gn.BIAS_IND].id, newNode.id)
-    gn.connections.push(ConnectionGene(gn.nodes[gn.BIAS_IND], newNode, 0, innovation3))
+    if (fullyConnectedBias) {
+      const innovation3 = iHist.add(gn.nodes[gn.BIAS_IND].id, newNode.id)
+      gn.connections.push(ConnectionGene(gn.nodes[gn.BIAS_IND], newNode, 0, innovation3))
+    }
     // If layer of newNode is equal to "to" layer, increment the layer number of all nodes that are
     // greater than or equal to newNode.layer, as well as genome layer count
     if (newNode.layer == connection.to.layer) {
       gn.nodes.forEach(n => { if (n.layer>=newNode.layer) n.layer += 1 })
       gn.nLayers += 1
     }
+    gn.nodes.push(newNode)
     gn.generateNetwork()
   }
 
@@ -269,7 +276,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     let layer = -1
     for (let i=0; i<gn.network.length; i++) {
       if (gn.network[i].layer>layer) {
-        layer = gn.network[i].layer
+        layer += 1
         layered.push([])
       }
       layered[layer].push(gn.network[i])
@@ -281,7 +288,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     for (let i=0; i<layered.length; i++) {
       const nx = x + w*0.05 + (w*0.9*i/(layered.length-1))
       for (let j=0; j<layered[i].length; j++) {
-        const ny = y + h*0.05 + (h*0.9*j/(layered[i].length-1))
+        let ny = null
+        if (layered[i].length==1) ny = height/2
+        else ny = y + h*0.05 + (h*0.9*j/(layered[i].length-1))
         nodePos.push(createVector(nx, ny))
         nodeIds.push(layered[i][j].id)
       }
@@ -293,7 +302,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     rect(x, y, w, h)
     for (let i=0; i<gn.connections.length; i++) {
       const c = gn.connections[i]
-      if (!c.enabled || c.weight==0) stroke(50, 50, 50)
+      if (!c.enabled) stroke(50, 50, 200)
       else if (c.weight<0) stroke(map(c.weight, -1, 0, 50, 255, true), 50, 50) 
       else stroke(50, map(c.weight, 0, 1, 50, 255, true), 50) 
       const from = nodePos[nodeIds.indexOf(c.from.id)]
