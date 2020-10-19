@@ -29,7 +29,7 @@ Ship = (x, y, diameter, ai=null) => {
       if (actions[0]>0.5) ship.accelerate()
       if (actions[1]>0.5) ship.rotate(1)
       if (actions[2]>0.5) ship.rotate(-1)
-      if (actions[3]>0.5 && ship.shoot()) lasers.push(Laser(currentTime, ship))
+      if (actions[3]>0.5 && ship.shoot(currentTime)) lasers.push(Laser(currentTime, ship))
     }
   }
 
@@ -42,10 +42,9 @@ Ship = (x, y, diameter, ai=null) => {
   /**
    * Fire laser when off cooldown
    */
-  ship.shoot = () => {
-    const now = millis()
-    if(now - ship.weaponLastFired > ship.weaponCd) {
-      ship.weaponLastFired = now
+  ship.shoot = (currentTime) => {
+    if(currentTime - ship.weaponLastFired > ship.weaponCd) {
+      ship.weaponLastFired = currentTime
       ship.shotCount += 1
       return true
     }

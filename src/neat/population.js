@@ -1,3 +1,7 @@
+/**
+ * This is where the population of Genomes live.
+ * Ideally only this class needs to be updated for each new application
+ */
 Population = (speciesSize, nInputs, nOutputs) => {
   const pn = {}
 
@@ -13,7 +17,7 @@ Population = (speciesSize, nInputs, nOutputs) => {
     pn.DOMINATION_ADJ_STEP = 0.1
     pn.dominationCounter = 0
     // Limit number of species
-    pn.SPECIES_LIMIT = speciesSize/2
+    pn.SPECIES_LIMIT = ceil(speciesSize/2)
     pn.SPECIES_ADJ_STEP = 0.1
     // Species Constants
     pn.STALENESS_THRESHOLD = 5

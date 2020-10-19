@@ -17,7 +17,7 @@ ConnectionGene = (from, to, weight, innovation) => {
     // 10% Chance for random weight override
     if (random()<0.1) cg.weight = random(-1, 1)
     else { // Otherwise random perturbation
-      cg.weight += randomGaussian(0, 0.1)
+      cg.weight += randomGaussian(0, 0.05)
       cg.weight = cg.weight > 1 ? 1 : cg.weight < -1 ? -1 : cg.weight
     }
   }
