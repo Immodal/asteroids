@@ -2,7 +2,7 @@
  * This is where the population of Genomes live.
  * Ideally only this class needs to be updated for each new application
  */
-Population = (speciesSize, nInputs, nOutputs) => {
+Population = (size, nInputs, nOutputs) => {
   const pn = {}
 
   /**
@@ -11,16 +11,15 @@ Population = (speciesSize, nInputs, nOutputs) => {
   const init = () => {
     // Upper Limit for generating random seeds for Games
     pn.MAGIC_NO = 987654321987654
-    pn.MEMBER_SIZE_HARD_LIMIT = 999999999
     // Number of generations only a single species exists before 
     // decrementing pn.compatibilityThreshold to increase biodiversity
     pn.autoAdjCompatThreshold = true
     pn.DOMINATION_LIMIT = 2
-    pn.DOMINATING_SPEC_LOW = ceil(speciesSize/10)
+    pn.DOMINATING_SPEC_LOW = 3
     pn.DOMINATION_ADJ_STEP = 0.1
     pn.dominationCounter = 0
     // Limit number of species
-    pn.SPECIES_LIMIT = speciesSize
+    pn.SPECIES_LIMIT = 20
     pn.SPECIES_ADJ_STEP = 0.1
     // Species Constants
     pn.STALENESS_THRESHOLD = 15
@@ -28,16 +27,16 @@ Population = (speciesSize, nInputs, nOutputs) => {
     pn.EXCESS_AND_DISJOJINT_COEFF = 1
     pn.WEIGHT_DIFF_COEFF = 0.5
     // Genome Constants
-    pn.INITIAL_FULLY_CONNECT = true
+    pn.INITIAL_FULLY_CONNECT = false
     pn.WEIGHT_MUTATION_RATE = 0.8
     pn.NEW_CONNECTION_RATE = 0.1
     pn.NEW_NODE_RATE = 0.1
 
-    pn.speciesSize = speciesSize
+    pn.size = size
     pn.innovationHistory = InnovationHistory(1000)
     pn.memberSeed = random(pn.MAGIC_NO)
     pn.members = Array.from(
-      Array(pn.speciesSize), 
+      Array(pn.size), 
       () => pn.createMember(
         Genome(nInputs, nOutputs, pn.innovationHistory, 
           pn.INITIAL_FULLY_CONNECT, 
@@ -130,13 +129,16 @@ Population = (speciesSize, nInputs, nOutputs) => {
     if (pn.species.length>pn.SPECIES_LIMIT*2) pn.species.length = pn.SPECIES_LIMIT*2
     // Reproduction
     const children = []
+    const nChildren = floor(size/pn.species.length)
+    const remainder = pn.size - nChildren * pn.species.length
     for (let i=0; i<pn.species.length; i++) {
       const s = pn.species[i]
+      const adjNChildren = i==0 ? nChildren + remainder : nChildren
       // TODO Gradually reduce size based on staleness instead?
-      for (let i=0; i<pn.speciesSize; i++) { // Add Children to array
+      for (let j=0; j<adjNChildren; j++) { // Add Children to array
         // Clone top performer first
-        if (i==0) children.push(pn.getGenome(s.members[0][s.MEMBER_IND]).clone())
-        else if (random()<0.001) { // Crossover with another species
+        if (j==0) children.push(pn.getGenome(s.members[0][s.MEMBER_IND]).clone())
+        else if (random()<0.001) { // 0.1% Chance to Crossover with another species
           const topCurrent = s.members[0]
           const s2 = Utils.pickRandom(pn.species)
           const topOther = s2.members[0]
@@ -147,12 +149,7 @@ Population = (speciesSize, nInputs, nOutputs) => {
           } else {
             children.push(g2.crossover(g1))
           }
-          
         } else children.push(s.getOffspring(pn.innovationHistory))
-      }
-      if (children.length > pn.MEMBER_SIZE_HARD_LIMIT) {
-        children.length = pn.MEMBER_SIZE_HARD_LIMIT
-        break
       }
     }
 
