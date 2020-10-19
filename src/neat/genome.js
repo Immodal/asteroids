@@ -120,9 +120,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null,
   gn.mutate = (iHist) => {
     const rand = random()
     if (gn.connections.length == 0) gn.addConnection(iHist)
+    if (rand<gn.newNodeRate) gn.addNode(iHist)
     if (rand<gn.weightMutationRate) gn.connections.forEach(c => c.mutate())
     if (rand<gn.newConnectionRate) gn.addConnection(iHist)
-    if (rand<gn.newNodeRate) gn.addNode(iHist)
   }
 
   /**
@@ -143,10 +143,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null,
   gn.addNode = (iHist, fullyConnectedBias=true) => {
     // Pick a random connection excluding from Bias nodes
     let connection = Utils.pickRandom(gn.connections)
-    if (fullyConnectedBias) {
-      while(connection.from == gn.nodes[gn.BIAS_IND]) {
-        connection = Utils.pickRandom(gn.connections)
-      }
+    // Only mutate active connections, dont touch bias
+    while(!connection.enabled && (fullyConnectedBias && connection.from == gn.nodes[gn.BIAS_IND])) {
+      connection = Utils.pickRandom(gn.connections)
     }
 
     // Disable node

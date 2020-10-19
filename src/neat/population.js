@@ -14,6 +14,7 @@ Population = (speciesSize, nInputs, nOutputs) => {
     // Number of generations only a single species exists before 
     // decrementing pn.compatibilityThreshold to increase biodiversity
     pn.DOMINATION_LIMIT = 2
+    pn.DOMINATING_SPEC_LOW = 3
     pn.DOMINATION_ADJ_STEP = 0.1
     pn.dominationCounter = 0
     // Limit number of species
@@ -43,6 +44,7 @@ Population = (speciesSize, nInputs, nOutputs) => {
           pn.NEW_CONNECTION_RATE, 
           pn.NEW_NODE_RATE), 
         pn.memberSeed))
+    pn.topFitnesses = [0]
     pn.avgScores = [0]
     pn.topScores = [0]
     pn.avgGenomeDist = [0]
@@ -65,9 +67,8 @@ Population = (speciesSize, nInputs, nOutputs) => {
    */
   pn.calcFitness = (member) => {
     let score = member.score
-    let hitRate = member.ship.shotCount>0 ? member.ship.shotHits / member.ship.shotCount : 0
-    let lifespan = member.updateCount // Arbitrarily ratio
-    return score + lifespan*0.05 + hitRate*100
+    let lifespan = member.updateCount * 0.1
+    return score + lifespan
   }
 
   /**
@@ -103,7 +104,7 @@ Population = (speciesSize, nInputs, nOutputs) => {
       // Otherwise make new species
       if (!speciesFound) pn.species.push(
         Species(pn.getGenome, pn.calcFitness, m, 
-          pn.COMPATIBILITY_THRESHOLD, pn.EXCESS_AND_DISJOJINT_COEFF, pn.WEIGHT_DIFF_COEFF))
+          pn.compatibilityThreshold, pn.EXCESS_AND_DISJOJINT_COEFF, pn.WEIGHT_DIFF_COEFF))
     })
     pn.avgGenomeDist.push(dists.reduce((acc, d) => acc + d, 0)/dists.length)
     // Sort members of each species, cull losers and update species stats
@@ -115,8 +116,12 @@ Population = (speciesSize, nInputs, nOutputs) => {
       })
     // Sort species by the fitness of their top member, remove stale species
     pn.species = pn.species
+      // There is potential for the top member to get emptied because its members got 
+      // grouped with another species, while at the same time both species are stale.
+      // Thus, filtering out empty and stale species at the same time could result in no species remaining.
+      .filter(s => s.members.length>0) 
       .sort((a, b) => a.bestFitness>b.bestFitness ? -1 : a.bestFitness<b.bestFitness ? 1 : 0)
-      .filter((s, i) => (i==0 && s.members.length>0) || s.staleness<pn.STALENESS_THRESHOLD)
+      .filter((s, i) => i==0 || s.staleness<pn.STALENESS_THRESHOLD)
     // Reproduction
     const children = []
     pn.species.forEach(s => {
@@ -132,6 +137,8 @@ Population = (speciesSize, nInputs, nOutputs) => {
     pn._checkDominationLimit()
     pn._checkSpeciesLimit()
 
+    pn.topFitnesses.push(pn.species[0].members[0][pn.species[0].FITNESS_IND])
+
     pn.memberSeed = random(pn.MAGIC_NO)
     pn.members = children.map(gn => pn.createMember(gn, pn.memberSeed))
     pn.generation += 1
@@ -141,11 +148,11 @@ Population = (speciesSize, nInputs, nOutputs) => {
    * Check for species domination and update compatibilityThreshold accordingly
    */
   pn._checkDominationLimit = () => {
-    if(pn.species.length>1) pn.dominationCounter = 0
+    if(pn.species.length>pn.DOMINATING_SPEC_LOW) pn.dominationCounter = 0
     else if (pn.dominationCounter<pn.DOMINATION_LIMIT) pn.dominationCounter+=1
     else if (pn.dominationCounter>=pn.DOMINATION_LIMIT) {
       pn.compatibilityThreshold *= 1 - pn.DOMINATION_ADJ_STEP
-      pn.species.forEach(s => s.compatibilityThreshold = pn.COMPATIBILITY_THRESHOLD)
+      pn.species.forEach(s => s.compatibilityThreshold = pn.compatibilityThreshold)
     }
   }
 
@@ -154,8 +161,8 @@ Population = (speciesSize, nInputs, nOutputs) => {
    */
   pn._checkSpeciesLimit = () => {
     if(pn.species.length>pn.SPECIES_LIMIT) {
-      pn.compatibilityThreshold *= 1 + pn.DOMINATION_ADJ_STEP
-      pn.species.forEach(s => s.compatibilityThreshold = pn.COMPATIBILITY_THRESHOLD)
+      pn.compatibilityThreshold *= 1 + pn.SPECIES_ADJ_STEP
+      pn.species.forEach(s => s.compatibilityThreshold = pn.compatibilityThreshold)
     }
   }
   
