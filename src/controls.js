@@ -7,6 +7,7 @@ Controls = () => {
     cs.infoDiv = cs.makeDiv(cs.viewDiv, "Information")
     cs.generationLabel = cs.makeDataLabel(cs.infoDiv, "Generation #: ", "0")
     cs.nSpeciesLabel = cs.makeDataLabel(cs.infoDiv, "N Species: ", "0")
+    cs.compatThresholdLabel = cs.makeDataLabel(cs.infoDiv, "Compatibility Threshold: ", "3")
     cs.avgGenomeDistLabel = cs.makeDataLabel(cs.infoDiv, "Avg Genome Dist: ", "0")
     cs.lastGenAvgScoreLabel = cs.makeDataLabel(cs.infoDiv, "Last Gen Avg Score: ", "0")
     cs.lastGenTopScoreLabel = cs.makeDataLabel(cs.infoDiv, "Last Gen Top Score: ", "0")
@@ -29,8 +30,9 @@ Controls = () => {
   cs.updateInfo = (currentGame, population) => {
     cs.generationLabel.html(population.generation)
     cs.nSpeciesLabel.html(population.species.length)
+    cs.compatThresholdLabel.html(population.compatibilityThreshold.toFixed(4))
     cs.avgGenomeDistLabel.html(population.avgGenomeDist[population.avgGenomeDist.length-1].toFixed(4))
-    cs.lastGenAvgScoreLabel.html(population.avgScores[population.avgScores.length-1])
+    cs.lastGenAvgScoreLabel.html(population.avgScores[population.avgScores.length-1].toFixed(4))
     cs.lastGenTopScoreLabel.html(population.topScores[population.topScores.length-1])
     cs.gameRemLabel.html(`${currentGame}/${population.members.length}`)
     cs.scoreLabel.html(population.members[currentGame].score)

@@ -1,7 +1,8 @@
 /**
  * Genome based on NEAT
  */
-Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
+Genome = (nInputs=null, nOutputs=null, innoHist=null, 
+    initiallyFullyConnect=true, weightMutationRate=0.8, newConnectionRate=0.05, newNodeRate=0.01) => {
   const gn = {}
 
   /**
@@ -10,9 +11,9 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
   const init = () => {
     // If not all params are supplied, the constructor will assume this is used for cloning and not run
     if (nInputs==null || nOutputs==null || innoHist==null) return gn
-    gn.weightMutationRate = 0.8
-    gn.newConnectionRate = 0.05
-    gn.newNodeRate = 0.01
+    gn.weightMutationRate = weightMutationRate
+    gn.newConnectionRate = newConnectionRate
+    gn.newNodeRate = newNodeRate
 
     gn.nInputs = nInputs
     gn.nOutputs = nOutputs
@@ -30,7 +31,7 @@ Genome = (nInputs=null, nOutputs=null, innoHist=null, fullyConnect=true) => {
     // The bare minimum amount of connections with random weights and unique innovation numbers
     gn.connections = []
     // Fully connect, otherwise add a random mutation to start off
-    if (fullyConnect) {
+    if (initiallyFullyConnect) {
       for(let i=0; i<gn.nInputs+1; i++) {
         for(let j=0; j<gn.nOutputs; j++) {
           const innovation = innoHist.add(gn.nodes[i].id, gn.nodes[gn.nInputs+1+j])

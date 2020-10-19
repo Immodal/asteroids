@@ -1,10 +1,10 @@
-Species = (getGenome, calcFitness, member) => {
+Species = (getGenome, calcFitness, member, compatibilityThreshold=3, excessAndDisjointCoeff=1, weightDiffCoeff=0.5) => {
   const sp = {}
 
   const init = () => {
-    sp.compatibilityThreshold = 0.3
-    sp.excessAndDisjointCoeff = 1
-    sp.weightDiffCoeff = 0.5
+    sp.compatibilityThreshold = compatibilityThreshold
+    sp.excessAndDisjointCoeff = excessAndDisjointCoeff
+    sp.weightDiffCoeff = weightDiffCoeff
 
     sp.FITNESS_IND = 0
     sp.MEMBER_IND = 1
