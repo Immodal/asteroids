@@ -140,7 +140,7 @@ Population = (size, nInputs, nOutputs) => {
     if (pn.species.length>pn.SPECIES_LIMIT*2) pn.species.length = pn.SPECIES_LIMIT*2
     // Reproduction
     const children = []
-    const nChildren = floor(size/pn.species.length)
+    const nChildren = floor(pn.size/pn.species.length)
     const remainder = max(0, pn.size - nChildren * pn.species.length)
     for (let i=0; i<pn.species.length; i++) {
       const s = pn.species[i]

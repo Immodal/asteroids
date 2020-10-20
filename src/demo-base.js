@@ -26,7 +26,7 @@ DemoBase = () => {
   }
 
   db.makeSliderGroup = (parent, title, sliderMin, sliderMax, sliderStart, sliderStep, sliderCallback=()=>{}) => {
-    const [slider, _] = db.makeSliderGroup2 = (parent, title, sliderMin, sliderMax, sliderStart, sliderStep, sliderCallback)
+    const [slider, _] = db.makeSliderGroup2(parent, title, sliderMin, sliderMax, sliderStart, sliderStep, sliderCallback)
     return slider
   }
 

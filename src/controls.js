@@ -1,4 +1,4 @@
-Controls = (fitnessChart, scoreChart, population, replayCallback) => {
+Controls = (fitnessChart, scoreChart, population, popSizeCallback, replayCallback) => {
   const cs = DemoBase()
 
   /**
@@ -7,6 +7,10 @@ Controls = (fitnessChart, scoreChart, population, replayCallback) => {
   const init = () => {
     cs.STR_TOP_SCORE = 'Top Score'
     cs.STR_FITTEST = 'Fittest'
+    cs.POP_SIZE_MIN = 10
+    cs.POP_SIZE_MAX = 500
+    cs.POP_SIZE_DEFAULT = 100
+
     cs.fitnessChart = fitnessChart
     cs.scoreChart = scoreChart
     cs.viewDiv = cs.makeDiv("#main", "")
@@ -22,9 +26,12 @@ Controls = (fitnessChart, scoreChart, population, replayCallback) => {
 
     // Controls
     cs.ctrlDiv = cs.makeDiv(cs.viewDiv, "Controls")
+    cs.popSizeInput = cs.makeInputGroup(cs.ctrlDiv, `Population Size [${cs.POP_SIZE_MIN},${cs.POP_SIZE_MAX}]: `, cs.POP_SIZE_DEFAULT, popSizeCallback)
     const [slider, label] = cs.makeSliderGroup2(cs.ctrlDiv, "Skip Generations: ", 0, 100, 0, 1)
     cs.skipGenSlider = slider
     cs.skipGenLabel = label
+    cs.showNNCb = cs.makeCheckbox(cs.ctrlDiv, "Show Neural Network", callback=()=>{}, value=true)
+    cs.showRayCastingCb = cs.makeCheckbox(cs.ctrlDiv, "Show Ray Casting", callback=()=>{}, value=true)
 
     // Replay
     cs.replayDiv = cs.makeDiv("#main", "Replays")
@@ -88,6 +95,10 @@ Controls = (fitnessChart, scoreChart, population, replayCallback) => {
     cs.makeReplayGenSelect(population)
   }
 
+  /**
+   * Creates a new selection dropdown in cs.replayGenSelectLabel with updated generations
+   * @param {Population} population 
+   */
   cs.makeReplayGenSelect = (population) => {
     cs.replayGenSelect = createSelect()
     cs.replayGenSelect.parent(cs.replayGenSelectLabel)

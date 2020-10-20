@@ -59,11 +59,11 @@ Game = (ai, seed=null) => {
   /**
    * Draw function to be called by sketch.js
    */
-  gm.draw = () => {
+  gm.draw = (showRC=true, showNN=true) => {
     gm.asteroids.forEach(o => o.draw())
-    gm.ship.draw(true)
+    gm.ship.draw(showRC)
     gm.lasers.forEach(o => o.draw())
-    gm.ship.ai.draw(0, 0, 200, height)
+    if(showNN) gm.ship.ai.draw(0, 0, 200, height)
   }
 
   /**
