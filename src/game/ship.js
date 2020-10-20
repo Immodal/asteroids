@@ -62,16 +62,18 @@ Ship = (x, y, diameter, ai=null) => {
     const w = ship.diameter*ship.aftProp
     if (showSensor) ship.sensor.draw()
     applyMatrix(cos(ship.rotation), sin(ship.rotation), -sin(ship.rotation), cos(ship.rotation), ship.pos.x, ship.pos.y)
+    if (ship.accelerated) {
+      ship.accelerated = false
+      if (math.random() > 0.05) {
+        fill("#FFD700")
+        stroke("#FF4500")
+        triangle(-l, 0, -w, -w/2, -w, w/2)
+      }
+    }
     fill(255)
     stroke(255)
     triangle(l, 0, -w, -w, -w, w)
-    if (ship.accelerated) {
-      ship.accelerated = false
-      if (math.random() > 0.05)triangle(-l, 0, -w, -w/2, -w, w/2)
-    }
     resetMatrix()
-
-    
   }
 
   return ship
