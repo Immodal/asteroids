@@ -1,4 +1,4 @@
-Controls = (fitnessChart, scoreChart, population, popSizeCallback, replayCallback) => {
+Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback, replayCallback, stopReplayCallback) => {
   const cs = DemoBase()
 
   /**
@@ -10,6 +10,10 @@ Controls = (fitnessChart, scoreChart, population, popSizeCallback, replayCallbac
     cs.POP_SIZE_MIN = 10
     cs.POP_SIZE_MAX = 500
     cs.POP_SIZE_DEFAULT = 100
+
+    cs.N_RAYS_MIN = 1
+    cs.N_RAYS_MAX = 64
+    cs.N_RAYS_DEFAULT = 16
 
     cs.fitnessChart = fitnessChart
     cs.scoreChart = scoreChart
@@ -27,6 +31,7 @@ Controls = (fitnessChart, scoreChart, population, popSizeCallback, replayCallbac
     // Controls
     cs.ctrlDiv = cs.makeDiv(cs.viewDiv, "Controls")
     cs.popSizeInput = cs.makeInputGroup(cs.ctrlDiv, `Population Size [${cs.POP_SIZE_MIN},${cs.POP_SIZE_MAX}]: `, cs.POP_SIZE_DEFAULT, popSizeCallback)
+    cs.nRaysInput = cs.makeInputGroup(cs.ctrlDiv, `N Rays (will cause RESET) [${cs.N_RAYS_MIN},${cs.N_RAYS_MAX}]: `, cs.N_RAYS_DEFAULT, nRaysCallback)
     const [slider, label] = cs.makeSliderGroup2(cs.ctrlDiv, "Skip Generations: ", 0, 100, 0, 1)
     cs.skipGenSlider = slider
     cs.skipGenLabel = label
@@ -40,6 +45,7 @@ Controls = (fitnessChart, scoreChart, population, popSizeCallback, replayCallbac
     cs.replayGenSelectLabel.parent(cs.replayDiv)
     cs.makeReplayGenSelect(population)
     cs.replayBtn = cs.makeButton(cs.replayDiv, "Play", replayCallback)
+    cs.stopReplayBtn = cs.makeButton(cs.replayDiv, "Stop", stopReplayCallback)
     return cs
   }
 

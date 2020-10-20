@@ -58,7 +58,7 @@ function setup() {
     }
   )
 
-  controls = Controls(fitnessChart, scoreChart, games, updatePopSize, getReplay)
+  controls = Controls(fitnessChart, scoreChart, games, updatePopSize, changeNRays, getReplay, stopReplay)
 }
 
 /**
@@ -92,30 +92,55 @@ function draw() {
     // Draw
     game.draw(controls.showRayCastingCb.checked(), controls.showNNCb.checked())
   
-    if(game.over) {
-      replayMember = null
-      controls.updateInfo(currentGame, games)
-    } else controls.updateReplayInfo(games, replayMember)
+    if(game.over) stopReplay()
+    else controls.updateReplayInfo(games, replayMember)
   }
+}
+
+/**
+ * Change the number of rays that each ship casts out and then reset the simulation.
+ */
+function changeNRays() {
+  stopReplay()
+  games = Population(parseInt(controls.popSizeInput.value()), parseInt(controls.nRaysInput.value())+N_SHIP_DATA_INPUTS, N_OUTPUTS)
+  currentGame = 0
+  controls.fitnessChart.data.labels = games.genMeta.generations
+  controls.fitnessChart.data.datasets[0].data = games.genMeta.topFitnesses
+  controls.fitnessChart.data.datasets[1].data = games.genMeta.avgFitnesses
+  controls.scoreChart.data.labels = games.genMeta.generations
+  controls.scoreChart.data.datasets[0].data = games.genMeta.topScores
+  controls.scoreChart.data.datasets[1].data = games.genMeta.avgScores
+  controls.updateInfo(currentGame, games)
+  controls.updateGeneration(games)
 }
 
 /**
  * Callback for setting up to run replayMember
  */
 function getReplay() {
-  const genInd = games.genMeta.generations.indexOf(parseInt(controls.replayGenSelect.value()))
-  const rType = controls.replayTypeRadio.value()
+  if (controls.replayGenSelect.value()!="") { // Prevent errors when pressed when there is no data yet
+    const genInd = games.genMeta.generations.indexOf(parseInt(controls.replayGenSelect.value()))
+    const rType = controls.replayTypeRadio.value()
+  
+    const m = rType==controls.STR_TOP_SCORE ? games.topScoringMembers[genInd] : games.topFittestMembers[genInd]
+    const g = games.getGenome(m).clone()
+    replayMember = games.createMember(g, m.seed)
+    replayMember.index = genInd
+  }
+}
 
-  const m = rType==controls.STR_TOP_SCORE ? games.topScoringMembers[genInd] : games.topFittestMembers[genInd]
-  const g = games.getGenome(m).clone()
-  replayMember = games.createMember(g, m.seed)
-  replayMember.index = genInd
+/**
+ * Callback for ending a replay session
+ */
+function stopReplay() {
+  replayMember = null
+  controls.updateInfo(currentGame, games)
 }
 
   /**
    * Verify input value and then update population size
    */
- function updatePopSize() {
-    controls.updateNumberInput(controls.POP_SIZE_MIN, controls.POP_SIZE_MAX, controls.POP_SIZE_DEFAULT, true, false)(controls.popSizeInput)
-    games.size = parseInt(controls.popSizeInput.value())
-  }
+function updatePopSize() {
+  controls.updateNumberInput(controls.POP_SIZE_MIN, controls.POP_SIZE_MAX, controls.POP_SIZE_DEFAULT, true, false)(controls.popSizeInput)
+  games.size = parseInt(controls.popSizeInput.value())
+}
