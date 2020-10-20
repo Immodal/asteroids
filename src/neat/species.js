@@ -11,6 +11,7 @@ Species = (getGenome, calcFitness, member, compatibilityThreshold=3, excessAndDi
 
     sp.members = []
     sp.rep = null
+    sp.repFitness = 0
     sp.bestFitness = 0
     sp.avgFitness = 0
     sp.staleness = 0 // N Generations since improvement
@@ -76,19 +77,20 @@ Species = (getGenome, calcFitness, member, compatibilityThreshold=3, excessAndDi
       // Calculate fitness adjusted for size of species
       .map(tup => [sp.calcFitness(tup[sp.MEMBER_IND])/sp.members.length, tup[sp.MEMBER_IND]])
       .sort((a, b) => a[sp.FITNESS_IND] < b[sp.FITNESS_IND] ? 1 : a[sp.FITNESS_IND] > b[sp.FITNESS_IND] ? -1 : 0)
-    sp.updateStats()
+    sp._updateStats()
   }
 
   /**
    * Update internal stats
    */
-  sp.updateStats = () => {
+  sp._updateStats = () => {
     if (sp.members.length==0) {
       sp.staleness = 200 // Arbitrary
     } else {
+      sp.bestFitness = sp.members[0][sp.FITNESS_IND]*sp.members.length
       sp.avgFitness = sp.members.reduce((acc, tup) => acc+tup[sp.FITNESS_IND], 0)/sp.members.length
-      if (sp.members[0][sp.FITNESS_IND]*sp.members.length >= sp.bestFitness) { // New top dog
-        sp.bestFitness = sp.members[0][0]*sp.members.length
+      if (sp.bestFitness >= sp.repFitness) { // New top dog
+        sp.repFitness = sp.bestFitness
         sp.staleness = 0
         sp.rep = sp.getGenome(sp.members[0][sp.MEMBER_IND]).clone()
       } else sp.staleness += 1

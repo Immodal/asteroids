@@ -27,10 +27,10 @@ Population = (size, nInputs, nOutputs) => {
     pn.EXCESS_AND_DISJOJINT_COEFF = 1
     pn.WEIGHT_DIFF_COEFF = 0.5
     // Genome Constants
-    pn.INITIAL_FULLY_CONNECT = false
+    pn.INITIAL_FULLY_CONNECT = true
     pn.WEIGHT_MUTATION_RATE = 0.8
-    pn.NEW_CONNECTION_RATE = 0.1
-    pn.NEW_NODE_RATE = 0.1
+    pn.NEW_CONNECTION_RATE = 0.05
+    pn.NEW_NODE_RATE = 0.03
 
     pn.size = size
     pn.innovationHistory = InnovationHistory(1000)
@@ -44,14 +44,17 @@ Population = (size, nInputs, nOutputs) => {
           pn.NEW_CONNECTION_RATE, 
           pn.NEW_NODE_RATE), 
         pn.memberSeed))
-    // TODO Make metadata  storage better
-    pn.generations = [0]
-    pn.topFitnesses = [0]
-    pn.avgFitnesses = [0]
-    pn.avgScores = [0]
-    pn.topScores = [0]
-    pn.avgGenomeDist = [0]
     pn.species = []
+    pn.topScoringMembers = [null]
+    pn.topFittestMembers = [null]
+    pn.genMeta = {
+      generations: [-1],
+      topFitnesses: [0],
+      avgFitnesses: [0],
+      avgScores: [0],
+      topScores: [0],
+      avgGenomeDist: [0]
+    }
     return pn
   }
 
@@ -69,8 +72,8 @@ Population = (size, nInputs, nOutputs) => {
    * @param {Game} member 
    */
   pn.calcFitness = (member) => {
-    let score = member.score
-    let lifespan = member.updateCount * 0.1
+    let score = member.score * 2
+    let lifespan = member.updateCount * 0.5
     return score + lifespan
   }
 
@@ -86,8 +89,16 @@ Population = (size, nInputs, nOutputs) => {
    */
   pn.naturalSelection = () => {
     randomSeed(null) // To prevent accidental patterns from emerging
-    pn.avgScores.push(pn.members.reduce((acc, m) => acc + m.score, 0)/pn.members.length)
-    pn.topScores.push(pn.members.reduce((acc, m) => acc > m.score ? acc : m.score, 0))
+    pn.genMeta.avgScores.push(pn.members.reduce((acc, m) => acc + m.score, 0)/pn.members.length)
+    let topScoringMember = null
+    pn.genMeta.topScores.push(pn.members.reduce((acc, m) => {
+        if (topScoringMember==null || acc < m.score) {
+          topScoringMember = m
+          return m.score
+        }
+        return acc
+      }, 0))
+    pn.topScoringMembers.push(topScoringMember)
     // Clear species of their old members
     pn.species.forEach(s => s.members = [])
     // Sort current members into their species
@@ -109,7 +120,7 @@ Population = (size, nInputs, nOutputs) => {
         Species(pn.getGenome, pn.calcFitness, m, 
           pn.compatibilityThreshold, pn.EXCESS_AND_DISJOJINT_COEFF, pn.WEIGHT_DIFF_COEFF))
     })
-    pn.avgGenomeDist.push(dists.reduce((acc, d) => acc + d, 0)/dists.length)
+    pn.genMeta.avgGenomeDist.push(dists.reduce((acc, d) => acc + d, 0)/dists.length)
     // Sort members of each species, cull losers and update species stats
     pn.species
       .forEach(s => {
@@ -130,7 +141,7 @@ Population = (size, nInputs, nOutputs) => {
     // Reproduction
     const children = []
     const nChildren = floor(size/pn.species.length)
-    const remainder = pn.size - nChildren * pn.species.length
+    const remainder = max(0, pn.size - nChildren * pn.species.length)
     for (let i=0; i<pn.species.length; i++) {
       const s = pn.species[i]
       const adjNChildren = i==0 ? nChildren + remainder : nChildren
@@ -159,12 +170,14 @@ Population = (size, nInputs, nOutputs) => {
       pn._checkSpeciesLimit()
     }
 
-    pn.topFitnesses.push(pn.species[0].members[0][pn.species[0].FITNESS_IND])
-    pn.avgFitnesses.push(pn.species.reduce((acc, s) => acc + s.avgFitness, 0)/pn.species.length)
+    pn.topFittestMembers.push(pn.species[0].members[0][pn.species[0].MEMBER_IND])
+    pn.genMeta.topFitnesses.push(pn.species[0].bestFitness)
+    pn.genMeta.avgFitnesses.push(pn.species.reduce((acc, s) => acc + s.avgFitness, 0)/pn.species.length)
 
     pn.memberSeed = random(pn.MAGIC_NO)
     pn.members = children.map(gn => pn.createMember(gn, pn.memberSeed))
-    pn.generations.push(pn.generations[pn.generations.length-1]+1)
+    pn.genMeta.generations.push(pn.genMeta.generations[pn.genMeta.generations.length-1]+1)
+    pn._trimGenMetaData()
   }
 
   /**
@@ -179,7 +192,7 @@ Population = (size, nInputs, nOutputs) => {
     }
   }
 
-    /**
+  /**
    * Check if there are too many species and update compatibilityThreshold accordingly
    */
   pn._checkSpeciesLimit = () => {
@@ -187,6 +200,18 @@ Population = (size, nInputs, nOutputs) => {
       pn.compatibilityThreshold *= 1 + pn.SPECIES_ADJ_STEP
       pn.species.forEach(s => s.compatibilityThreshold = pn.compatibilityThreshold)
     }
+  }
+
+  /**
+   * Limit the amount of Generation meta data stored
+   */
+  pn._trimGenMetaData = () => {
+    const limit = 100
+    if(pn.genMeta.generations.length>limit) {
+      Object.values(pn.genMeta).forEach(arr => arr.shift())
+    }
+    if(pn.topScoringMembers.length>limit) pn.topScoringMembers.shift()
+    if(pn.topFittestMembers.length>limit) pn.topFittestMembers.shift()
   }
   
   return init()

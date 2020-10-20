@@ -10,12 +10,12 @@ Game = (ai, seed=null) => {
     gm.seed = seed
     randomSeed(gm.seed)
     
-    gm.nAsteroids = 20
+    gm.nAsteroids = 15
     gm.score = 0
     gm.over = false
     gm.ship = Ship(width/2, height/2, 15, ai)
     gm.asteroids = Array.from(Array(gm.nAsteroids-1), (_, i) => gm.spawnAsteroid(i==0))
-    gm.asteroids.push(Asteroid(400, height/2, createVector(100, 0)))
+    gm.asteroids.push(Asteroid(width*0.4, height*0.5, createVector(100, 0)))
     gm.lasers = []
     gm.updateCount = 0
     return gm

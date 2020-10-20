@@ -44,6 +44,37 @@ DemoBase = () => {
     return [slider, label]
   }
 
+  db.makeRadioGroup = (parent, title, options, defaultValInd) => {
+    const titleObj = createP(title)
+    titleObj.parent(parent)
+
+    const rad = createRadio()
+    rad.parent(titleObj)
+    options.forEach(op => {
+      if (op instanceof Array) rad.option(op[0], op[1])
+      else rad.option(op)
+    })
+    if (options[defaultValInd] instanceof Array) rad.selected(options[defaultValInd][0])
+    else rad.selected(options[defaultValInd])
+
+    return rad
+  }
+
+  db.makeSelectGroup = (parent, title, options, defaultValInd, callback=()=>{}) => {
+    const titleObj = createP(title)
+    titleObj.parent(parent)
+
+    const sel = createSelect()
+    sel.parent(titleObj)
+    options.forEach((op, i) => {
+      sel.option(op)
+      if (i==defaultValInd && options[op]!=null) sel.selected(options[defaultValInd])
+    })
+    sel.changed(callback)
+
+    return sel
+  }
+
   db.makeInputGroup = (parent, title, value, callback=null) => {
     const titleObj = createP(title)
     titleObj.parent(parent)
