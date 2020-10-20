@@ -5,7 +5,7 @@ Inspired by [Coding Train](https://github.com/CodingTrain/Asteroids) and [Code B
 You can watch a neural network learn to play the game in your very own browser by following [this link](https://immodal.github.io/asteroids/).
  
 <p align="center">
-  <img src="readme/asteroids.gif" alt="asteroids" />
+  <img src="https://gfycat.com/thinincomparablefurseal"/>
 </p>
 <p align="center">Figure 1: AI playing the game</p>
 
