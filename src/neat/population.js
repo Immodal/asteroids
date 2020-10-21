@@ -2,7 +2,7 @@
  * This is where the population of Genomes live.
  * Ideally only this class needs to be updated for each new application
  */
-Population = (size, nInputs, nOutputs) => {
+Population = (size, nInputs, nOutputs, initiallyFullyConnect=true) => {
   const pn = {}
 
   /**
@@ -27,7 +27,7 @@ Population = (size, nInputs, nOutputs) => {
     pn.EXCESS_AND_DISJOJINT_COEFF = 1
     pn.WEIGHT_DIFF_COEFF = 0.5
     // Genome Constants
-    pn.INITIAL_FULLY_CONNECT = true
+    pn.initiallyFullyConnect = initiallyFullyConnect
     pn.WEIGHT_MUTATION_RATE = 0.8
     pn.NEW_CONNECTION_RATE = 0.05
     pn.NEW_NODE_RATE = 0.03
@@ -39,7 +39,7 @@ Population = (size, nInputs, nOutputs) => {
       Array(pn.size), 
       () => pn.createMember(
         Genome(nInputs, nOutputs, pn.innovationHistory, 
-          pn.INITIAL_FULLY_CONNECT, 
+          pn.initiallyFullyConnect, 
           pn.WEIGHT_MUTATION_RATE,
           pn.NEW_CONNECTION_RATE, 
           pn.NEW_NODE_RATE), 
@@ -74,7 +74,9 @@ Population = (size, nInputs, nOutputs) => {
   pn.calcFitness = (member) => {
     let score = member.score * 2
     let lifespan = member.updateCount * 0.5
-    return score + lifespan
+    // Extra incentive on a finished game
+    let gameFinished = member.asteroids.length == 0 ? 2 : 1
+    return (score + lifespan) * gameFinished
   }
 
   /**

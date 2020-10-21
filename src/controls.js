@@ -1,4 +1,4 @@
-Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback, replayCallback, stopReplayCallback) => {
+Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback, fullyConnectedCallback, replayCallback, stopReplayCallback) => {
   const cs = DemoBase()
 
   /**
@@ -21,25 +21,48 @@ Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback
 
     // Information
     cs.infoDiv = cs.makeDiv(cs.viewDiv, "Information")
+    cs.infoDiv.size(340, 425)
     cs.generationLabel = cs.makeDataLabel(cs.infoDiv, "Generation #: ", "0")
+    cs.gameRemLabel = cs.makeDataLabel(cs.infoDiv, "Current Game: ", "0")
+    cs.scoreLabel = cs.makeDataLabel(cs.infoDiv, "Score: ", "0")
+    cs.infoInfoLabel1 = createP(
+      "The number of generations effectively means the number of times the population was able to reproduce and evolve. " +
+      "A higher number typically (but not always) means a smarter neural network. ")
+    cs.infoInfoLabel1.parent(cs.infoDiv)
+    cs.infoInfoLabel2 = createP(
+      "The networks are categorized into species which help protect innovative mutations and give them time to reach their full potential. " +
+      "They are separated by the Compatibility Threshold which I have modified to adapt to the state of the population, helping to maintain between 3 and 20 species. ")
+    cs.infoInfoLabel2.parent(cs.infoDiv)
     cs.nSpeciesLabel = cs.makeDataLabel(cs.infoDiv, "N Species: ", "0")
     cs.compatThresholdLabel = cs.makeDataLabel(cs.infoDiv, "Compatibility Threshold: ", "3")
     cs.avgGenomeDistLabel = cs.makeDataLabel(cs.infoDiv, "Avg Genome Dist: ", "0")
-    cs.gameRemLabel = cs.makeDataLabel(cs.infoDiv, "Current Game: ", "0")
-    cs.scoreLabel = cs.makeDataLabel(cs.infoDiv, "Score: ", "0")
 
     // Controls
-    cs.ctrlDiv = cs.makeDiv(cs.viewDiv, "Controls")
-    cs.popSizeInput = cs.makeInputGroup(cs.ctrlDiv, `Population Size [${cs.POP_SIZE_MIN},${cs.POP_SIZE_MAX}]: `, cs.POP_SIZE_DEFAULT, popSizeCallback)
-    cs.nRaysInput = cs.makeInputGroup(cs.ctrlDiv, `N Rays (will cause RESET) [${cs.N_RAYS_MIN},${cs.N_RAYS_MAX}]: `, cs.N_RAYS_DEFAULT, nRaysCallback)
-    const [slider, label] = cs.makeSliderGroup2(cs.ctrlDiv, "Skip Generations: ", 0, 100, 0, 1)
+    cs.ctrlDiv = cs.makeDiv("#main", "Controls")
+    cs.ctrlDiv.size(325, 425)
+    cs.ctrlsInfoLabel1 = createP(
+      "Here we can control a few aspects of the simulation. " + 
+      "You can use the Fast-forward Generations slider skip past the boring bits as the networks take a few generations to get smart. ")
+    cs.ctrlsInfoLabel1.parent(cs.ctrlDiv)
+    cs.ctrlsInfoLabel2 = createP(
+      "Increasing population size increases biodiversity and can help the networks evolve faster." + 
+      "Increasing the number of rays will effectively give the ship more \"eyes\" to see with. ")
+    cs.ctrlsInfoLabel2.parent(cs.ctrlDiv)
+    const [slider, label] = cs.makeSliderGroup2(cs.ctrlDiv, "Fast-forward Generations: ", 0, 100, 0, 1)
     cs.skipGenSlider = slider
     cs.skipGenLabel = label
+    cs.popSizeInput = cs.makeInputGroup(cs.ctrlDiv, `Population Size [${cs.POP_SIZE_MIN},${cs.POP_SIZE_MAX}]: `, cs.POP_SIZE_DEFAULT, popSizeCallback)
+    cs.nRaysInput = cs.makeInputGroup(cs.ctrlDiv, `N Rays (RESET) [${cs.N_RAYS_MIN},${cs.N_RAYS_MAX}]: `, cs.N_RAYS_DEFAULT, nRaysCallback)
+    cs.fullyConnectNNCb = cs.makeCheckbox(cs.ctrlDiv, "Initially fully connect networks (RESET)", fullyConnectedCallback, value=true)
     cs.showNNCb = cs.makeCheckbox(cs.ctrlDiv, "Show Neural Network", callback=()=>{}, value=true)
     cs.showRayCastingCb = cs.makeCheckbox(cs.ctrlDiv, "Show Ray Casting", callback=()=>{}, value=true)
 
     // Replay
     cs.replayDiv = cs.makeDiv("#main", "Replays")
+    cs.replayDiv.size(175, 250)
+    cs.replayInfoLabel1 = createP(
+      "Use this replay feature to observe the behaviour of the top performing networks for each generation.")
+    cs.replayInfoLabel1.parent(cs.replayDiv)
     cs.replayTypeRadio = cs.makeRadioGroup(cs.replayDiv, 'Type: ', [cs.STR_TOP_SCORE, cs.STR_FITTEST], 0)
     cs.replayGenSelectLabel = createP('Generation: ')
     cs.replayGenSelectLabel.parent(cs.replayDiv)

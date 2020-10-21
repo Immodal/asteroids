@@ -58,7 +58,7 @@ function setup() {
     }
   )
 
-  controls = Controls(fitnessChart, scoreChart, games, updatePopSize, changeNRays, getReplay, stopReplay)
+  controls = Controls(fitnessChart, scoreChart, games, updatePopSize, resetGame, resetGame, getReplay, stopReplay)
 }
 
 /**
@@ -98,11 +98,11 @@ function draw() {
 }
 
 /**
- * Change the number of rays that each ship casts out and then reset the simulation.
+ * Reset the game and update population values
  */
-function changeNRays() {
+function resetGame() {
   stopReplay()
-  games = Population(parseInt(controls.popSizeInput.value()), parseInt(controls.nRaysInput.value())+N_SHIP_DATA_INPUTS, N_OUTPUTS)
+  games = Population(parseInt(controls.popSizeInput.value()), parseInt(controls.nRaysInput.value())+N_SHIP_DATA_INPUTS, N_OUTPUTS, controls.fullyConnectNNCb.checked())
   currentGame = 0
   controls.fitnessChart.data.labels = games.genMeta.generations
   controls.fitnessChart.data.datasets[0].data = games.genMeta.topFitnesses
