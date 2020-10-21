@@ -32,6 +32,7 @@ Population = (size, nInputs, nOutputs, initiallyFullyConnect=true) => {
     pn.NEW_CONNECTION_RATE = 0.05
     pn.NEW_NODE_RATE = 0.03
 
+    pn.nextSpeciesId = 0
     pn.size = size
     pn.innovationHistory = InnovationHistory(1000)
     pn.memberSeed = random(pn.MAGIC_NO)
@@ -119,7 +120,7 @@ Population = (size, nInputs, nOutputs, initiallyFullyConnect=true) => {
       }
       // Otherwise make new species
       if (!speciesFound) pn.species.push(
-        Species(pn.getGenome, pn.calcFitness, m, 
+        Species(pn.nextSpeciesId++, pn.getGenome, pn.calcFitness, m, 
           pn.compatibilityThreshold, pn.EXCESS_AND_DISJOJINT_COEFF, pn.WEIGHT_DIFF_COEFF))
     })
     pn.genMeta.avgGenomeDist.push(dists.reduce((acc, d) => acc + d, 0)/dists.length)

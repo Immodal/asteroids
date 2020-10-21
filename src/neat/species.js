@@ -1,7 +1,8 @@
-Species = (getGenome, calcFitness, member, compatibilityThreshold=3, excessAndDisjointCoeff=1, weightDiffCoeff=0.5) => {
+Species = (id, getGenome, calcFitness, member, compatibilityThreshold=3, excessAndDisjointCoeff=1, weightDiffCoeff=0.5) => {
   const sp = {}
 
   const init = () => {
+    sp.id = id
     sp.compatibilityThreshold = compatibilityThreshold
     sp.excessAndDisjointCoeff = excessAndDisjointCoeff
     sp.weightDiffCoeff = weightDiffCoeff
