@@ -2,7 +2,7 @@
 
 Inspired by [Coding Train](https://github.com/CodingTrain/Asteroids) and [Code Bullet](https://github.com/Code-Bullet/Asteroids-with-NEAT), here is my take on the Asteroids game with an AI trained using Neuroevolution through Augmenting Topologies (NEAT), given vision using ray casting.
 
-You can watch a neural network learn to play the game in your very own browser by following [this link](https://immodal.github.io/asteroids/).
+You can watch a neural network evolve in real time here: https://immodal.github.io/asteroids/
  
 <p align="center">
   <img src="readme/asteroids.gif" alt="asteroids"/>
