@@ -11,7 +11,7 @@ Controls = (fitnessChart, scoreChart, population,
     cs.STR_TOP_SCORE = 'Top Score'
     cs.STR_FITTEST = 'Fittest'
     cs.POP_SIZE_MIN = 10
-    cs.POP_SIZE_MAX = 1000
+    cs.POP_SIZE_MAX = 500
     cs.POP_SIZE_DEFAULT = population.size
 
     cs.N_RAYS_MIN = 1
