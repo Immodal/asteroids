@@ -39,7 +39,7 @@ Controls = (fitnessChart, scoreChart, population,
 
     // Information
     cs.infoDiv = cs.makeDiv(cs.viewDiv, "Information")
-    cs.infoDiv.size(340, 425)
+    cs.infoDiv.size(340, 460)
     cs.generationLabel = cs.makeDataLabel(cs.infoDiv, "Generation #: ", "0")
     cs.gameRemLabel = cs.makeDataLabel(cs.infoDiv, "Current Game: ", "0")
     cs.scoreLabel = cs.makeDataLabel(cs.infoDiv, "Score: ", "0")
@@ -57,7 +57,7 @@ Controls = (fitnessChart, scoreChart, population,
 
     // Controls
     cs.ctrlDiv = cs.makeDiv("#main", "Controls")
-    cs.ctrlDiv.size(325, 425)
+    cs.ctrlDiv.size(325, 460)
     cs.ctrlsInfoLabel1 = createP(
       "Here we can control a few aspects of the simulation. " + 
       "You can use the Fast-forward Generations slider skip past the boring bits as the networks take a few generations to get smart. ")
@@ -77,7 +77,7 @@ Controls = (fitnessChart, scoreChart, population,
 
     // More Controls
     cs.controlsAndreplayDiv = cs.makeDiv("#main", "")
-    cs.controlsAndreplayDiv.size(300, 425)
+    cs.controlsAndreplayDiv.size(300, 460)
     cs.moreControlsDiv = cs.makeDiv(cs.controlsAndreplayDiv, "More Controls")
     cs.lifetimeMultInput = cs.makeInputGroup(cs.moreControlsDiv, `Lifetime Multiplier (Fitness): `, cs.LIFETIME_MULT_DEFAULT, lifetimeMultCallback)
     cs.scoreMultInput = cs.makeInputGroup(cs.moreControlsDiv, `Score Multiplier (Fitness): `, cs.SCORE_MULT_DEFAULT, scoreMultCallback)
