@@ -27,12 +27,12 @@ function setup() {
           data: games.genMeta.topFitnesses,
           borderColor: "rgba(0, 255, 0, 0.5)",
           fill: false
-        }, {
+        }, /*{
           label: "Average Fitness",
           data: games.genMeta.avgFitnesses,
           borderColor: "rgba(0, 0, 255, 0.5)",
           fill: false
-        }],
+        }*/],
       },
     }
   )
@@ -48,12 +48,12 @@ function setup() {
           data: games.genMeta.topScores,
           borderColor: "rgba(0, 255, 0, 0.5)",
           fill: false
-        }, {
+        }, /*{
           label: "Average Score",
           data: games.genMeta.avgScores,
           borderColor: "rgba(0, 0, 255, 0.5)",
           fill: false
-        }],
+        }*/],
       },
     }
   )
