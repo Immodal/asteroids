@@ -2,7 +2,7 @@ let controls, games, canvas, chart;
 let currentGame = 0
 let replayMember = null
 const N_SENSOR_LINES = 16
-const N_SHIP_DATA_INPUTS = 7
+const N_SHIP_DATA_INPUTS = 8
 const N_INPUTS = N_SENSOR_LINES + N_SHIP_DATA_INPUTS
 const N_OUTPUTS = 4
 const POP_SIZE = 100
@@ -114,10 +114,10 @@ function resetGame() {
   currentGame = 0
   controls.fitnessChart.data.labels = games.genMeta.generations
   controls.fitnessChart.data.datasets[0].data = games.genMeta.topFitnesses
-  controls.fitnessChart.data.datasets[1].data = games.genMeta.avgFitnesses
+  //controls.fitnessChart.data.datasets[1].data = games.genMeta.avgFitnesses
   controls.scoreChart.data.labels = games.genMeta.generations
   controls.scoreChart.data.datasets[0].data = games.genMeta.topScores
-  controls.scoreChart.data.datasets[1].data = games.genMeta.avgScores
+  //controls.scoreChart.data.datasets[1].data = games.genMeta.avgScores
   controls.updateInfo(currentGame, games)
   controls.updateGeneration(games)
 }

@@ -25,6 +25,8 @@ Ship = (x, y, diameter, ai=null) => {
       data.push(ship.velocity.x/ship.maxSpeed)
       data.push(ship.velocity.y/ship.maxSpeed)
       data.push(ship.rotation/TWO_PI)
+      const timeSinceLastFired = currentTime-ship.weaponLastFired
+      data.push(timeSinceLastFired>ship.weaponCd ? 1 : timeSinceLastFired/ship.weaponCd)
       let actions = ship.ai.feedForward(data)
       
       if (actions[0]>0.5) ship.accelerate()
