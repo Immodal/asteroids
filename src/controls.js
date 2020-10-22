@@ -1,4 +1,7 @@
-Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback, fullyConnectedCallback, replayCallback, stopReplayCallback) => {
+Controls = (fitnessChart, scoreChart, population,
+   popSizeCallback, nRaysCallback, fullyConnectedCallback, 
+   lifetimeMultCallback, scoreMultCallback, weightMutCallback, newConCallback, newNodeCallback,
+   replayCallback, stopReplayCallback) => {
   const cs = DemoBase()
 
   /**
@@ -8,12 +11,27 @@ Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback
     cs.STR_TOP_SCORE = 'Top Score'
     cs.STR_FITTEST = 'Fittest'
     cs.POP_SIZE_MIN = 10
-    cs.POP_SIZE_MAX = 500
-    cs.POP_SIZE_DEFAULT = 100
+    cs.POP_SIZE_MAX = 1000
+    cs.POP_SIZE_DEFAULT = population.size
 
     cs.N_RAYS_MIN = 1
     cs.N_RAYS_MAX = 64
-    cs.N_RAYS_DEFAULT = 16
+    cs.N_RAYS_DEFAULT = population.members[0].ship.ai.nInputs-N_SHIP_DATA_INPUTS
+
+    cs.LIFETIME_MULT_DEFAULT = population.LIFETIME_MULTIPLIER
+    cs.SCORE_MULT_DEFAULT = population.SCORE_MULTIPLIER
+
+    cs.WEIGHT_MUT_DEFAULT = population.WEIGHT_MUTATION_RATE
+    cs.WEIGHT_MUT_MIN = 0
+    cs.WEIGHT_MUT_MAX = 1
+
+    cs.NEW_CON_DEFAULT = population.NEW_CONNECTION_RATE
+    cs.NEW_CON_MIN = 0
+    cs.NEW_CON_MAX = 1
+
+    cs.NEW_NODE_DEFAULT = population.NEW_NODE_RATE
+    cs.NEW_NODE_MIN = 0
+    cs.NEW_NODE_MAX = 1
 
     cs.fitnessChart = fitnessChart
     cs.scoreChart = scoreChart
@@ -45,7 +63,7 @@ Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback
       "You can use the Fast-forward Generations slider skip past the boring bits as the networks take a few generations to get smart. ")
     cs.ctrlsInfoLabel1.parent(cs.ctrlDiv)
     cs.ctrlsInfoLabel2 = createP(
-      "Increasing population size increases biodiversity and can help the networks evolve faster." + 
+      "Increasing population size increases biodiversity and can help the networks evolve faster. " + 
       "Increasing the number of rays will effectively give the ship more \"eyes\" to see with. ")
     cs.ctrlsInfoLabel2.parent(cs.ctrlDiv)
     const [slider, label] = cs.makeSliderGroup2(cs.ctrlDiv, "Fast-forward Generations: ", 0, 100, 0, 1)
@@ -57,9 +75,18 @@ Controls = (fitnessChart, scoreChart, population, popSizeCallback, nRaysCallback
     cs.showNNCb = cs.makeCheckbox(cs.ctrlDiv, "Show Neural Network", callback=()=>{}, value=true)
     cs.showRayCastingCb = cs.makeCheckbox(cs.ctrlDiv, "Show Ray Casting", callback=()=>{}, value=true)
 
+    // More Controls
+    cs.controlsAndreplayDiv = cs.makeDiv("#main", "")
+    cs.controlsAndreplayDiv.size(300, 425)
+    cs.moreControlsDiv = cs.makeDiv(cs.controlsAndreplayDiv, "More Controls")
+    cs.lifetimeMultInput = cs.makeInputGroup(cs.moreControlsDiv, `Lifetime Multiplier (Fitness): `, cs.LIFETIME_MULT_DEFAULT, lifetimeMultCallback)
+    cs.scoreMultInput = cs.makeInputGroup(cs.moreControlsDiv, `Score Multiplier (Fitness): `, cs.SCORE_MULT_DEFAULT, scoreMultCallback)
+    cs.weightMutationInput = cs.makeInputGroup(cs.moreControlsDiv, `Weight Mutation Rate [0,1]: `, cs.WEIGHT_MUT_DEFAULT, weightMutCallback)
+    cs.newConnectionInput = cs.makeInputGroup(cs.moreControlsDiv, `New Connection Rate [0,1]: `, cs.NEW_CON_DEFAULT, newConCallback)
+    cs.newNodeInput = cs.makeInputGroup(cs.moreControlsDiv, `New Node Rate [0,1]: `, cs.NEW_NODE_DEFAULT, newNodeCallback)
+
     // Replay
-    cs.replayDiv = cs.makeDiv("#main", "Replays")
-    cs.replayDiv.size(175, 250)
+    cs.replayDiv = cs.makeDiv(cs.controlsAndreplayDiv, "Replays")
     cs.replayInfoLabel1 = createP(
       "Use this replay feature to observe the behaviour of the top performing networks for each generation.")
     cs.replayInfoLabel1.parent(cs.replayDiv)

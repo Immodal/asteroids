@@ -14,7 +14,7 @@ Ship = (x, y, diameter, ai=null) => {
   ship.shotHits = 0
 
   ship.ai = ai
-  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.nInputs-7) // - Ship data inputs
+  ship.sensor = Sensor(ship, ship.ai==null ? 8 : ship.ai.nInputs-N_SHIP_DATA_INPUTS) // - Ship data inputs
 
   ship.takeActions = (currentTime, lasers) => {
     if (ship.ai!=null) {

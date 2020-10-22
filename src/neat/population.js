@@ -31,6 +31,9 @@ Population = (size, nInputs, nOutputs, initiallyFullyConnect=true) => {
     pn.WEIGHT_MUTATION_RATE = 0.8
     pn.NEW_CONNECTION_RATE = 0.05
     pn.NEW_NODE_RATE = 0.03
+    // Fitness
+    pn.LIFETIME_MULTIPLIER = 0.5
+    pn.SCORE_MULTIPLIER = 2
 
     pn.nextSpeciesId = 0
     pn.size = size
@@ -73,8 +76,8 @@ Population = (size, nInputs, nOutputs, initiallyFullyConnect=true) => {
    * @param {Game} member 
    */
   pn.calcFitness = (member) => {
-    let score = member.score * 2
-    let lifespan = member.updateCount * 0.5
+    let score = member.score * pn.SCORE_MULTIPLIER
+    let lifespan = member.updateCount * pn.LIFETIME_MULTIPLIER
     // Extra incentive on a finished game
     let gameFinished = member.asteroids.length == 0 ? 2 : 1
     return (score + lifespan) * gameFinished

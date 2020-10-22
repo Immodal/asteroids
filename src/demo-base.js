@@ -98,8 +98,9 @@ DemoBase = () => {
   db.updateNumberInput = (min, max, initial, isInt=false, restart=false) => inputObj => {
     if (Utils.isNumber(inputObj.value())) {
       const value = isInt ? math.floor(inputObj.value()) : inputObj.value()
-      if (value<min) inputObj.value(min)
-      else if (value>max) inputObj.value(max)
+      if (min != null && value<min) inputObj.value(min)
+      else if (max != null && value>max) inputObj.value(max)
+      else inputObj.value(value)
     } else inputObj.value(initial)
 
     if (restart) db.restart()

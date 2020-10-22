@@ -58,7 +58,10 @@ function setup() {
     }
   )
 
-  controls = Controls(fitnessChart, scoreChart, games, updatePopSize, resetGame, resetGame, getReplay, stopReplay)
+  controls = Controls(fitnessChart, scoreChart, games, 
+    updatePopSize, resetGame, resetGame, 
+    updateLifetimeMult, updateScoreMult, updateWeightMutationRate, updateNewConnectionRate, updateNewNodeRate,
+    getReplay, stopReplay)
 }
 
 /**
@@ -103,6 +106,11 @@ function draw() {
 function resetGame() {
   stopReplay()
   games = Population(parseInt(controls.popSizeInput.value()), parseInt(controls.nRaysInput.value())+N_SHIP_DATA_INPUTS, N_OUTPUTS, controls.fullyConnectNNCb.checked())
+  updateLifetimeMult()
+  updateScoreMult()
+  updateWeightMutationRate()
+  updateNewConnectionRate()
+  updateNewNodeRate()
   currentGame = 0
   controls.fitnessChart.data.labels = games.genMeta.generations
   controls.fitnessChart.data.datasets[0].data = games.genMeta.topFitnesses
@@ -137,10 +145,41 @@ function stopReplay() {
   controls.updateInfo(currentGame, games)
 }
 
-  /**
-   * Verify input value and then update population size
-   */
+/**
+ * Verify input value and then update population size
+ */
 function updatePopSize() {
   controls.updateNumberInput(controls.POP_SIZE_MIN, controls.POP_SIZE_MAX, controls.POP_SIZE_DEFAULT, true, false)(controls.popSizeInput)
   games.size = parseInt(controls.popSizeInput.value())
+}
+
+/**
+ * Various callbacks for the inputs
+ */
+function updateLifetimeMult() {
+  controls.updateNumberInput(null, null, controls.LIFETIME_MULT_DEFAULT, false, false)(controls.lifetimeMultInput)
+  games.LIFETIME_MULTIPLIER = parseFloat(controls.lifetimeMultInput.value())
+}
+
+function updateScoreMult() {
+  controls.updateNumberInput(null, null, controls.SCORE_MULT_DEFAULT, false, false)(controls.scoreMultInput)
+  games.SCORE_MULTIPLIER = parseFloat(controls.scoreMultInput.value())
+}
+
+function updateWeightMutationRate() {
+  controls.updateNumberInput(controls.WEIGHT_MUT_MIN, controls.WEIGHT_MUT_MAX, controls.WEIGHT_MUT_DEFAULT, false, false)(controls.weightMutationInput)
+  games.WEIGHT_MUTATION_RATE = parseFloat(controls.weightMutationInput.value())
+  games.members.forEach(m => m.ship.ai.weightMutationRate = games.WEIGHT_MUTATION_RATE)
+}
+
+function updateNewConnectionRate() {
+  controls.updateNumberInput(controls.NEW_CON_MIN, controls.NEW_CON_MAX, controls.NEW_CON_DEFAULT, false, false)(controls.newConnectionInput)
+  games.NEW_CONNECTION_RATE = parseFloat(controls.newConnectionInput.value())
+  games.members.forEach(m => m.ship.ai.newConnectionRate = games.NEW_CONNECTION_RATE)
+}
+
+function updateNewNodeRate() {
+  controls.updateNumberInput(controls.NEW_NODE_MIN, controls.NEW_NODE_MAX, controls.NEW_NODE_DEFAULT, false, false)(controls.newNodeInput)
+  games.NEW_NODE_RATE = parseFloat(controls.newNodeInput.value())
+  games.members.forEach(m => m.ship.ai.newNodeRate = games.NEW_NODE_RATE)
 }
