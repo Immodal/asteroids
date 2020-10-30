@@ -54,12 +54,12 @@ Controls = (fitnessChart, scoreChart, population,
     cs.showRayCastingCb = cs.makeCheckbox("showRaysCb", "Show Ship Sensors", ()=>{}, value=true)
     cs.fullyConnectNNCb = cs.makeCheckbox("initiallyFullyConnectCb", "Initially fully connect networks (will cause RESET)", fullyConnectedCallback, value=true)
     
-    group = cs.makeSliderGroup3("Population Size (More biodiversity, but also more games to be played): ", "popSizeLbl", "popSizeInp", 
+    group = cs.makeSliderGroup3("Population Size (More biodiversity, more games per generation): ", "popSizeLbl", "popSizeInp", 
       cs.POP_SIZE_MIN, cs.POP_SIZE_MAX, cs.POP_SIZE_DEFAULT, cs.POP_SIZE_STEP, 
       () => games.size = cs.popSizeSlider.value())
     cs.popSizeSlider = group[0]
 
-    group = cs.makeSliderGroup3("Number of Sensors (will cause a RESET, ships can see in higher resolution): ", "nRaysLbl", "nRaysInp", 
+    group = cs.makeSliderGroup3("Number of Sensors (will cause a RESET): ", "nRaysLbl", "nRaysInp", 
       cs.N_RAYS_MIN, cs.N_RAYS_MAX, cs.N_RAYS_DEFAULT, cs.N_RAYS_STEP, 
       nRaysCallback)
     cs.nRaysSlider = group[0]
