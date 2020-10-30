@@ -13,10 +13,12 @@ Controls = (fitnessChart, scoreChart, population,
     cs.POP_SIZE_MIN = 10
     cs.POP_SIZE_MAX = 500
     cs.POP_SIZE_DEFAULT = population.size
+    cs.POP_SIZE_STEP = 10
 
     cs.N_RAYS_MIN = 1
     cs.N_RAYS_MAX = 64
     cs.N_RAYS_DEFAULT = population.members[0].ship.ai.nInputs-N_SHIP_DATA_INPUTS
+    cs.N_RAYS_STEP = 1
 
     cs.LIFETIME_MULT_DEFAULT = population.LIFETIME_MULTIPLIER
     cs.SCORE_MULT_DEFAULT = population.SCORE_MULTIPLIER
@@ -35,67 +37,46 @@ Controls = (fitnessChart, scoreChart, population,
 
     cs.fitnessChart = fitnessChart
     cs.scoreChart = scoreChart
-    cs.viewDiv = cs.makeDiv("#main", "")
 
-    // Information
-    cs.infoDiv = cs.makeDiv(cs.viewDiv, "Information")
-    cs.infoDiv.size(340, 460)
-    cs.generationLabel = cs.makeDataLabel(cs.infoDiv, "Generation #: ", "0")
-    cs.gameRemLabel = cs.makeDataLabel(cs.infoDiv, "Current Game: ", "0")
-    cs.scoreLabel = cs.makeDataLabel(cs.infoDiv, "Score: ", "0")
-    cs.infoInfoLabel1 = createP(
-      "The number of generations effectively means the number of times the population was able to reproduce and evolve. " +
-      "A higher number typically (but not always) means a smarter neural network. ")
-    cs.infoInfoLabel1.parent(cs.infoDiv)
-    cs.infoInfoLabel2 = createP(
-      "The networks are categorized into species which help protect innovative mutations and give them time to reach their full potential. " +
-      "They are separated by the Compatibility Threshold which I have modified to adapt to the state of the population, helping to maintain between 3 and 20 species. ")
-    cs.infoInfoLabel2.parent(cs.infoDiv)
-    cs.nSpeciesLabel = cs.makeDataLabel(cs.infoDiv, "N Species: ", "0")
-    cs.compatThresholdLabel = cs.makeDataLabel(cs.infoDiv, "Compatibility Threshold: ", "3")
-    cs.avgGenomeDistLabel = cs.makeDataLabel(cs.infoDiv, "Avg Genome Dist: ", "0")
+    // Generation
+    cs.generationLabel = cs.makeDataLabel("generationLbl", "Generation #: ", "0")
+    cs.gameRemLabel = cs.makeDataLabel("gameLbl", "Current Game: ", "0")
+    cs.scoreLabel = cs.makeDataLabel("scoreLbl", "Score: ", "0")
+    let group = cs.makeSliderGroup3("Fast-forward Generations: ", "genSkipLbl", "genSkipInp", 0, 100, 0, 1)
+    cs.skipGenSlider = group[0]
+    cs.skipGenLabel = group[1]
+    cs.nSpeciesLabel = cs.makeDataLabel("nSpeciesLbl", "Number of Species: ", "0")
+    cs.compatThresholdLabel = cs.makeDataLabel("compatThreshLbl", "Compatibility Threshold: ", "3")
+    cs.avgGenomeDistLabel = cs.makeDataLabel("genomeDistLbl", "Average Genome Difference: ", "0")
+    
+    // Settings
+    cs.showNNCb = cs.makeCheckbox("showNNCb", "Show Neural Network", ()=>{}, value=true)
+    cs.showRayCastingCb = cs.makeCheckbox("showRaysCb", "Show Ship Sensors", ()=>{}, value=true)
+    cs.fullyConnectNNCb = cs.makeCheckbox("initiallyFullyConnectCb", "Initially fully connect networks (will cause RESET)", fullyConnectedCallback, value=true)
+    
+    group = cs.makeSliderGroup3("Population Size (More biodiversity, but also more games to be played): ", "popSizeLbl", "popSizeInp", 
+      cs.POP_SIZE_MIN, cs.POP_SIZE_MAX, cs.POP_SIZE_DEFAULT, cs.POP_SIZE_STEP, 
+      () => games.size = cs.popSizeSlider.value())
+    cs.popSizeSlider = group[0]
 
-    // Controls
-    cs.ctrlDiv = cs.makeDiv("#main", "Controls")
-    cs.ctrlDiv.size(325, 460)
-    cs.ctrlsInfoLabel1 = createP(
-      "Here we can control a few aspects of the simulation. " + 
-      "You can use the Fast-forward Generations slider skip past the boring bits as the networks take a few generations to get smart. ")
-    cs.ctrlsInfoLabel1.parent(cs.ctrlDiv)
-    cs.ctrlsInfoLabel2 = createP(
-      "Increasing population size increases biodiversity and can help the networks evolve faster. " + 
-      "Increasing the number of rays will effectively give the ship more \"eyes\" to see with. ")
-    cs.ctrlsInfoLabel2.parent(cs.ctrlDiv)
-    const [slider, label] = cs.makeSliderGroup2(cs.ctrlDiv, "Fast-forward Generations: ", 0, 100, 0, 1)
-    cs.skipGenSlider = slider
-    cs.skipGenLabel = label
-    cs.popSizeInput = cs.makeInputGroup(cs.ctrlDiv, `Population Size [${cs.POP_SIZE_MIN},${cs.POP_SIZE_MAX}]: `, cs.POP_SIZE_DEFAULT, popSizeCallback)
-    cs.nRaysInput = cs.makeInputGroup(cs.ctrlDiv, `N Rays (RESET) [${cs.N_RAYS_MIN},${cs.N_RAYS_MAX}]: `, cs.N_RAYS_DEFAULT, nRaysCallback)
-    cs.fullyConnectNNCb = cs.makeCheckbox(cs.ctrlDiv, "Initially fully connect networks (RESET)", fullyConnectedCallback, value=true)
-    cs.showNNCb = cs.makeCheckbox(cs.ctrlDiv, "Show Neural Network", callback=()=>{}, value=true)
-    cs.showRayCastingCb = cs.makeCheckbox(cs.ctrlDiv, "Show Ray Casting", callback=()=>{}, value=true)
+    group = cs.makeSliderGroup3("Number of Sensors (will cause a RESET, ships can see in higher resolution): ", "nRaysLbl", "nRaysInp", 
+      cs.N_RAYS_MIN, cs.N_RAYS_MAX, cs.N_RAYS_DEFAULT, cs.N_RAYS_STEP, 
+      nRaysCallback)
+    cs.nRaysSlider = group[0]
 
-    // More Controls
-    cs.controlsAndreplayDiv = cs.makeDiv("#main", "")
-    cs.controlsAndreplayDiv.size(300, 460)
-    cs.moreControlsDiv = cs.makeDiv(cs.controlsAndreplayDiv, "More Controls")
-    cs.lifetimeMultInput = cs.makeInputGroup(cs.moreControlsDiv, `Lifetime Multiplier (Fitness): `, cs.LIFETIME_MULT_DEFAULT, lifetimeMultCallback)
-    cs.scoreMultInput = cs.makeInputGroup(cs.moreControlsDiv, `Score Multiplier (Fitness): `, cs.SCORE_MULT_DEFAULT, scoreMultCallback)
-    cs.weightMutationInput = cs.makeInputGroup(cs.moreControlsDiv, `Weight Mutation Rate [0,1]: `, cs.WEIGHT_MUT_DEFAULT, weightMutCallback)
-    cs.newConnectionInput = cs.makeInputGroup(cs.moreControlsDiv, `New Connection Rate [0,1]: `, cs.NEW_CON_DEFAULT, newConCallback)
-    cs.newNodeInput = cs.makeInputGroup(cs.moreControlsDiv, `New Node Rate [0,1]: `, cs.NEW_NODE_DEFAULT, newNodeCallback)
+    cs.lifetimeMultInput = cs.makeInputGroup("lifetimeMultInp", `Lifetime Multiplier (Fitness): `, cs.LIFETIME_MULT_DEFAULT, lifetimeMultCallback)
+    cs.scoreMultInput = cs.makeInputGroup("scoreMultInp", `Score Multiplier (Fitness): `, cs.SCORE_MULT_DEFAULT, scoreMultCallback)
+    cs.weightMutationInput = cs.makeInputGroup("weightMutInp", `Weight Mutation Rate [0,1]: `, cs.WEIGHT_MUT_DEFAULT, weightMutCallback)
+    cs.newConnectionInput = cs.makeInputGroup("newConInp", `New Connection Rate [0,1]: `, cs.NEW_CON_DEFAULT, newConCallback)
+    cs.newNodeInput = cs.makeInputGroup("newNodeInp", `New Node Rate [0,1]: `, cs.NEW_NODE_DEFAULT, newNodeCallback)
 
     // Replay
-    cs.replayDiv = cs.makeDiv(cs.controlsAndreplayDiv, "Replays")
-    cs.replayInfoLabel1 = createP(
-      "Use this replay feature to observe the behaviour of the top performing networks for each generation.")
-    cs.replayInfoLabel1.parent(cs.replayDiv)
-    cs.replayTypeRadio = cs.makeRadioGroup(cs.replayDiv, 'Type: ', [cs.STR_TOP_SCORE, cs.STR_FITTEST], 0)
-    cs.replayGenSelectLabel = createP('Generation: ')
-    cs.replayGenSelectLabel.parent(cs.replayDiv)
+    cs.replayTypeRadio = cs.makeRadioGroup("replayTypeInp", [cs.STR_TOP_SCORE, cs.STR_FITTEST], 0)
+    cs.replayGenSelectLabel = createP('Generation #: ')
+    cs.replayGenSelectLabel.parent("replayGenInp")
     cs.makeReplayGenSelect(population)
-    cs.replayBtn = cs.makeButton(cs.replayDiv, "Play", replayCallback)
-    cs.stopReplayBtn = cs.makeButton(cs.replayDiv, "Stop", stopReplayCallback)
+    cs.replayBtn = cs.makeButton("replayGenPlayPauseInp", "Play", replayCallback)
+    cs.stopReplayBtn = cs.makeButton("replayGenPlayPauseInp", "Stop", stopReplayCallback)
     return cs
   }
 
@@ -159,7 +140,7 @@ Controls = (fitnessChart, scoreChart, population,
     cs.replayGenSelect = createSelect()
     cs.replayGenSelect.parent(cs.replayGenSelectLabel)
     population.genMeta.generations.forEach(gen => {
-      if (gen>0) cs.replayGenSelect.option(gen)
+      if (gen>=0) cs.replayGenSelect.option(gen)
     })
     if (population.genMeta.generations.length>1) 
       cs.replayGenSelect.selected(population.genMeta.generations[population.genMeta.generations.length-1].toString())

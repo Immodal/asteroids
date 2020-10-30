@@ -21,6 +21,7 @@ DemoBase = () => {
   db.makeCheckbox = (parent, title, callback=()=>{}, value=false) => {
     cb = createCheckbox(title, value)
     cb.parent(parent)
+    cb.style("color", "#dcdcdc")
     cb.changed(callback)
     return cb
   }
@@ -44,18 +45,31 @@ DemoBase = () => {
     return [slider, label]
   }
 
-  db.makeRadioGroup = (parent, title, options, defaultValInd) => {
+  db.makeSliderGroup3 = (title, titleParent, sliderParent, sliderMin, sliderMax, sliderStart, sliderStep, sliderCallback=()=>{}) => {
     const titleObj = createP(title)
-    titleObj.parent(parent)
+    titleObj.parent(titleParent)
+    const slider = createSlider(sliderMin, sliderMax, sliderStart, sliderStep)
+    slider.parent(sliderParent)
+    const label = createSpan(`${slider.value()}`)
+    label.parent(titleObj)
+    slider.changed(() => {
+      label.html(slider.value())
+      sliderCallback()
+    })
+    return [slider, label]
+  }
 
+  db.makeRadioGroup = (parent, options, defaultValInd) => {
     const rad = createRadio()
-    rad.parent(titleObj)
+    rad.parent(parent)
     options.forEach(op => {
       if (op instanceof Array) rad.option(op[0], op[1])
       else rad.option(op)
     })
     if (options[defaultValInd] instanceof Array) rad.selected(options[defaultValInd][0])
     else rad.selected(options[defaultValInd])
+
+    rad.style("color", "#dcdcdc")
 
     return rad
   }

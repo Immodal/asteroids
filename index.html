@@ -24,23 +24,102 @@
     <script src="src/sketch.js"></script>
   </head>
   <body>
-    <h1>Asteroids</h1>
-    <p>Link to repo: <a href="https://github.com/Immodal/asteroids">Immodal/asteroids</a>, check out the readme for more info.</p>
-    <div id="content" class="contentDiv">
-      <div id="main" class="contentDiv">
-        <div id="cv" style="margin-bottom: 1em"></div>
-      </div>
-      <div id="charting" class="contentDiv">
-        <div class="chart-container" style="position: relative; height:275px; width:500px">
-          <h3 class="title">Fitness</h3>
-          <canvas id="chartcv1"></canvas>
+    <div class="container">
+      <div class="element section">
+        <h1>Asteroids</h1>
+        <p>
+          Asteroids is a space-themed multidirectional shooter arcade game where the player controls a single spaceship in an asteroid field which is periodically traversed by flying saucers. 
+          The object of the game is to shoot and destroy the asteroids and saucers, while not colliding with either. Though in this case the saucer is omitted.
+        </p><br>
+        <p>
+          Each spaceship contains a unique brain called a Neural Network which takes a predetermined series of inputs and processes them to obtain a series of outputs. 
+          The values of these outputs determine which of these four actions the spaceship takes: move forward, turn left, turn right or shoot.
+        </p><br>
+        <p>
+          Based on each spaceship's performance each game, the top performers are selected and reproduced in a process that is based off of real life evolution called Neuroevolution.
+          Each top performer produces offspring with minor mutations in their "genetic" code. Because these mutations are random, they are mostly bad and can lead to offspring performing worse.
+          However, with a large enough population, every once in a while a good mutation will occur, which will result in that network becoming dominant and produce offspring of their own.
+        </p><br>
+        <p>
+          This app has 3 sections:
+        </p>
+        <ol>
+          <li>
+            Evolution - This is where you can watch the Neural Networks train and evolve. 
+            I would recommend fast-forwarding through at least the first few generations and then using the replay section to view the top performers.
+            Because the mutations are random and can have effects ranging from catastrophically bad to a mild improvement, you can basically ignore everything except the top performers.
+            It also shows some statistics about the current evolutionary state of the population.
+          </li>
+          <li>
+            Replay - This is where you go to choose a replay to watch. 
+            You can choose the top performer based on either their game score, or their fitness score (a background calculation that can be changed in settings).
+            Use the charts to see which generations did well and seem interesting. 
+          </li>
+          <li>
+            Settings - There are a number of settings here that can alter the way the neural network evolves. Change a few settings around and see what happens! 
+            You can also disable the view of the Neural Network and Sensors here.
+          </li>
+        </ol>
+
+        <h2>Evolution</h2>
+        <p>
+          The Neural Networks of the spaceships are categorized into a number of species which help protect innovative mutations and give them time to reach their full potential.
+          A combination of factors such as how many of nodes they have in common, how the nodes are connected and the strength of those connections help determine how different networks are from each other.
+          The threshold where networks are considered different species is known as the Compatibility Threshold. Here it auto adjusts to maintain between 3 and 20 species.
+        </p>
+        <div class="row">
+          <div id='nSpeciesLbl' class="column" style="width:15%"></div>
+          <div id='compatThreshLbl' class="column" style="width:22%"></div>
+          <div id='genomeDistLbl' class="column" style="width:30%"></div>
         </div>
-        <div class="chart-container" style="position: relative; height:275px; width:500px">
-          <h3 class="title">Score</h3>
-          <canvas id="chartcv2"></canvas>
+        <p>
+          When an entire population of spaceships have completed their games and reproduced, they have completed a single generation.
+          As more generations take place, the Neural Networks will grow to be more complex and are able to produce more sophisticated behaviors.
+        </p>
+        <div class="row">
+          <div id='generationLbl' class="column" style="width:15%"></div>
+          <div id='gameLbl' class="column" style="width:20%"></div>
+          <div id='scoreLbl' class="column" style="width:10%"></div>
+          <div id='genSkipLbl' class="column" style="width:23%"></div>
+          <div id='genSkipInp' class="sliderCol" style="width:20%"></div>
+        </div>
+        <div id="cv" style="margin-bottom: 1em"></div>
+        <h2>Replays</h2>
+        <p>Use this replay feature to observe the behaviour of the top performing networks for each generation.</p>
+        <div class="row">
+          <div class="column" style="width:3%"><p>Type: </p></div>
+          <div id='replayTypeInp' class="column" style="width:20%"></div>
+          <div id='replayGenInp' class="column" style="width:20%"></div>
+          <div id='replayGenPlayPauseInp' style="height:100%; display: flex; align-items: center;"></div>
+        </div>
+        <div class="row" style="height:275px;">
+          <div class="column"><canvas id="chartcv1"></canvas></div>
+          <div class="column"><canvas id="chartcv2"></canvas></div>
+        </div>
+        <h2>Settings</h2>
+        <div class="row">
+          <div id='initiallyFullyConnectCb' class="column" style="width:40%"></div>
+          <div id='showNNCb' class="column" style="width:20%"></div>
+          <div id='showRaysCb' class="column" style="width:20%"></div>
+        </div>
+        <div class="row">
+          <div id='popSizeLbl' class="column"></div>
+          <div id='popSizeInp' class="column"></div>
+        </div>
+        <div class="row">
+          <div id='nRaysLbl' class="column"></div>
+          <div id='nRaysInp' class="column"></div>
+        </div>
+        <div class="row">
+          <div id='lifetimeMultInp' class="column" style="width:30%"></div>
+          <div id='scoreMultInp' class="column" style="width:30%"></div>
+        </div>
+        <div class="row">
+          <div id='weightMutInp' class="column" style="width:30%"></div>
+          <div id='newConInp' class="column" style="width:30%"></div>
+          <div id='newNodeInp' class="column" style="width:30%"></div>
         </div>
       </div>
     </div>
-
   </body>
 </html>

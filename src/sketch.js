@@ -11,11 +11,12 @@ const POP_SIZE = 100
  * Setup
  */
 function setup() {
-  canvas = createCanvas(800, 480)
+  canvas = createCanvas(1000, 480)
   canvas.parent("#cv")
 
   games = Population(POP_SIZE, N_INPUTS, N_OUTPUTS)
   
+  Chart.defaults.global.defaultFontColor = "#dcdcdc"
   fitnessChart = new Chart(
     document.getElementById('chartcv1').getContext('2d'), 
     {
@@ -34,6 +35,29 @@ function setup() {
           fill: false
         }*/],
       },
+      options: {
+        responsive: false,
+        title: {
+          display: true,
+          text: 'Network Fitness'
+        },
+        scales: {
+          yAxes: [{
+            gridLines: { color: "#555555" },
+            scaleLabel: {
+              display: true,
+              labelString: 'Fitness'
+            }
+          }],
+          xAxes: [{
+            gridLines: { color: "#555555" },
+            scaleLabel: {
+              display: true,
+              labelString: 'Generation'
+            }
+          }]
+        }
+      }
     }
   )
 
@@ -54,7 +78,30 @@ function setup() {
           borderColor: "rgba(0, 0, 255, 0.5)",
           fill: false
         }*/],
-      },
+      },      
+      options: {
+        responsive: false,
+        title: {
+          display: true,
+          text: 'Game Score'
+        },
+        scales: {
+          yAxes: [{
+            gridLines: { color: "#555555" },
+            scaleLabel: {
+              display: true,
+              labelString: 'Score'
+            }
+          }],
+          xAxes: [{
+            gridLines: { color: "#555555" },
+            scaleLabel: {
+              display: true,
+              labelString: 'Generation'
+            }
+          }]
+        }
+      }
     }
   )
 
@@ -69,6 +116,10 @@ function setup() {
  */
 function draw() {
   background(0)
+  stroke(255)
+  strokeWeight(1)
+  noFill()
+  rect(0, 0, width, height)
   if (replayMember==null) {
     const game = games.members[currentGame]
     //game.actions()
@@ -105,7 +156,7 @@ function draw() {
  */
 function resetGame() {
   stopReplay()
-  games = Population(parseInt(controls.popSizeInput.value()), parseInt(controls.nRaysInput.value())+N_SHIP_DATA_INPUTS, N_OUTPUTS, controls.fullyConnectNNCb.checked())
+  games = Population(controls.popSizeSlider.value(), controls.nRaysSlider.value()+N_SHIP_DATA_INPUTS, N_OUTPUTS, controls.fullyConnectNNCb.checked())
   updateLifetimeMult()
   updateScoreMult()
   updateWeightMutationRate()
