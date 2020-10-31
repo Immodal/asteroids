@@ -13,9 +13,9 @@ Game = (ai, seed=null) => {
     gm.nAsteroids = 15
     gm.score = 0
     gm.over = false
-    gm.ship = Ship(width/2, height/2, 15, ai)
+    gm.ship = FakeShip(width/2, height/2, 15, ai)
     gm.asteroids = Array.from(Array(gm.nAsteroids-1), (_, i) => gm.spawnAsteroid(i==0))
-    gm.asteroids.push(Asteroid(width*0.4, height*0.5, createVector(100, 0)))
+    //gm.asteroids.push(Asteroid(width*0.4, height*0.5, createVector(100, 0)))
     gm.lasers = []
     gm.updateCount = 0
     return gm
@@ -63,7 +63,7 @@ Game = (ai, seed=null) => {
     gm.asteroids.forEach(o => o.draw())
     gm.ship.draw(showRC)
     gm.lasers.forEach(o => o.draw())
-    if(showNN) gm.ship.ai.draw(0, 0, 200, height)
+    if(showNN && gm.ship.ai!=null) gm.ship.ai.draw(0, 0, 200, height)
   }
 
   /**

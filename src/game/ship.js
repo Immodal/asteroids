@@ -62,7 +62,7 @@ Ship = (x, y, diameter, ai=null) => {
   ship.draw = (showSensor) => {
     const l = ship.diameter*ship.bowProp
     const w = ship.diameter*ship.aftProp
-    if (showSensor) ship.sensor.draw()
+    //if (showSensor) ship.sensor.draw()
     applyMatrix(cos(ship.rotation), sin(ship.rotation), -sin(ship.rotation), cos(ship.rotation), ship.pos.x, ship.pos.y)
     if (ship.accelerated) {
       ship.accelerated = false
@@ -72,7 +72,7 @@ Ship = (x, y, diameter, ai=null) => {
         triangle(-l, 0, -w, -w/2, -w, w/2)
       }
     }
-    fill(255)
+    fill(0)
     stroke(255)
     triangle(l, 0, -w, -w, -w, w)
     resetMatrix()

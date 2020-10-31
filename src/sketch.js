@@ -1,4 +1,5 @@
 let controls, games, canvas, chart;
+let cam, colors, trackingData, gm, bullet;
 let currentGame = 0
 let replayMember = null
 const N_SENSOR_LINES = 16
@@ -11,10 +12,26 @@ const POP_SIZE = 100
  * Setup
  */
 function setup() {
-  canvas = createCanvas(1000, 480)
+  canvas = createCanvas(1280, 960)
   canvas.parent("#cv")
+  
+  cam = createCapture(VIDEO)
+  //cam.position(0,0)
+  cam.style('opacity',0.5)
+  cam.id("myVideo")
+  cam.parent("vid")
+  //cam.hide()
+  colors = new tracking.ColorTracker(['magenta'])
+  tracking.track('#myVideo', colors)
+  //start detecting the tracking
+  colors.on('track', function(event) { //this happens each time the tracking happens
+    trackingData = event.data // break the trackingjs data into a global so we can access it with p5
+  });
 
-  games = Population(POP_SIZE, N_INPUTS, N_OUTPUTS)
+  //bullet = new Bullet(width/2, height/2, 0, 0)
+  gm = Game()
+
+  /*games = Population(POP_SIZE, N_INPUTS, N_OUTPUTS)
   
   Chart.defaults.global.defaultFontColor = "#dcdcdc"
   fitnessChart = new Chart(
@@ -28,12 +45,7 @@ function setup() {
           data: games.genMeta.topFitnesses,
           borderColor: "rgba(0, 255, 0, 0.5)",
           fill: false
-        }, /*{
-          label: "Average Fitness",
-          data: games.genMeta.avgFitnesses,
-          borderColor: "rgba(0, 0, 255, 0.5)",
-          fill: false
-        }*/],
+        }],
       },
       options: {
         responsive: false,
@@ -72,12 +84,7 @@ function setup() {
           data: games.genMeta.topScores,
           borderColor: "rgba(0, 255, 0, 0.5)",
           fill: false
-        }, /*{
-          label: "Average Score",
-          data: games.genMeta.avgScores,
-          borderColor: "rgba(0, 0, 255, 0.5)",
-          fill: false
-        }*/],
+        },],
       },      
       options: {
         responsive: false,
@@ -108,46 +115,73 @@ function setup() {
   controls = Controls(fitnessChart, scoreChart, games, 
     updatePopSize, resetGame, resetGame, 
     updateLifetimeMult, updateScoreMult, updateWeightMutationRate, updateNewConnectionRate, updateNewNodeRate,
-    getReplay, stopReplay)
+    getReplay, stopReplay)*/
 }
 
 /**
  * Draw
  */
 function draw() {
-  background(0)
-  stroke(255)
-  strokeWeight(1)
-  noFill()
-  rect(0, 0, width, height)
-  if (replayMember==null) {
-    const game = games.members[currentGame]
-    //game.actions()
-    if (controls.getSkips() > 0) while(!game.over) game.update()
-    else game.update()
-    game.draw(controls.showRayCastingCb.checked(), controls.showNNCb.checked())
-  
-    if(game.over) currentGame += 1
-    if(currentGame == games.members.length) {
-      games.naturalSelection()
-      controls.updateGeneration(games)
-      currentGame = 0
-      controls.decSkips()
+  if (true) {
+    push()
+    //move image by the width of image to the left
+    translate(width, 0)
+    //then scale it by -1 in the x-axis
+    //to flip the image
+    scale(-2, 2)
+    //draw video capture feed as image inside p5 canvas
+    image(cam, 0, 0)
+    if(trackingData){ //if there is tracking data to look at, then...
+      for (var i = 0; i < trackingData.length; i++) { //loop through each of the detected colors
+        fill("#00ff00")
+        circle(trackingData[i].x+trackingData[i].width/2,trackingData[i].y+trackingData[i].height/2,10)
+      }
     }
-    controls.updateInfo(currentGame, games)
+    pop()
+    if(gm.over) gm = Game()
+    if(trackingData) {
+      for (var i = 0; i < trackingData.length; i++) { //loop through each of the detected colors
+        gm.ship.seek(createVector((trackingData[i].x+trackingData[i].width/2)*-2 + width,(trackingData[i].y+trackingData[i].height/2)*2))
+      }
+    }
+    if (gm.ship.shoot(gm.updateCount)) gm.lasers.push(Laser(gm.updateCount, gm.ship))
+    gm.update()
+    gm.draw()
   } else {
-    const game = replayMember
-    game.update()
-    // Canvas Replay Text
-    textSize(32)
-    fill(0, 255, 255)
-    stroke(0)
-    text('REPLAY', width/2, height/2);
-    // Draw
-    game.draw(controls.showRayCastingCb.checked(), controls.showNNCb.checked())
-  
-    if(game.over) stopReplay()
-    else controls.updateReplayInfo(games, replayMember)
+    background(0)
+    stroke(255)
+    strokeWeight(1)
+    noFill()
+    rect(0, 0, width, height)
+    if (replayMember==null) {
+      const game = games.members[currentGame]
+      //game.actions()
+      if (controls.getSkips() > 0) while(!game.over) game.update()
+      else game.update()
+      game.draw(controls.showRayCastingCb.checked(), controls.showNNCb.checked())
+    
+      if(game.over) currentGame += 1
+      if(currentGame == games.members.length) {
+        games.naturalSelection()
+        controls.updateGeneration(games)
+        currentGame = 0
+        controls.decSkips()
+      }
+      controls.updateInfo(currentGame, games)
+    } else {
+      const game = replayMember
+      game.update()
+      // Canvas Replay Text
+      textSize(32)
+      fill(0, 255, 255)
+      stroke(0)
+      text('REPLAY', width/2, height/2);
+      // Draw
+      game.draw(controls.showRayCastingCb.checked(), controls.showNNCb.checked())
+    
+      if(game.over) stopReplay()
+      else controls.updateReplayInfo(games, replayMember)
+    }
   }
 }
 
