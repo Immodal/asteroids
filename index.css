@@ -56,12 +56,12 @@ li {
   color: #DCDCDC;
 }
 
-body {
+body, footer {
   display:flex; 
   flex-direction:column; 
   justify-content:center;
-  min-height:100vh;
 }
+
 
 .container {
   margin: 0 auto;
